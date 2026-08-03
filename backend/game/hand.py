@@ -3,7 +3,7 @@ class Hand:
         self.cards = []
     
     def __str__(self):
-        return ", ".join(str(card) for card in self.cards)
+        return ", ".join(str(card.get_card_val()) for card in self.cards)
 
     def add_card(self, card):
         self.cards.append(card)
@@ -12,6 +12,8 @@ class Hand:
         total = 0
         aces = 0
         for card in self.cards:
+            if card.get_hidden() == True:
+                continue
             total += card.value
 
             if card.num == "A":
