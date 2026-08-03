@@ -1,11 +1,12 @@
 from game.game import Game
 
 def main():
-    while True:
+    game_state = True
+    game = Game()
+    while game_state:
         choice = input("Start game? (y/n): ").lower()
         if choice == "y":
-            print("Dealing hand... \n")
-            game = Game()
+            game_state = False
             game.play(True)
 
         elif choice == "n":

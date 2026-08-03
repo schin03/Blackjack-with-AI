@@ -27,5 +27,8 @@ class Hand:
     
     def bust_check(self):
         return self.get_value() > 21
+    
+    def reveal_last(self):
+        self.cards[-1].set_hidden(False)
 
     
