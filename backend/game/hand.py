@@ -14,7 +14,7 @@ class Hand:
         for card in self.cards:
             if card.get_hidden() == True:
                 continue
-            total += card.value
+            total += int(card.value)
 
             if card.num == "A":
                 aces += 1

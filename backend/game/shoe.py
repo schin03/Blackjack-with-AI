@@ -1,12 +1,15 @@
 import random
 from .deck import Deck
-
+from .card import Card
 
 class Shoe:
     def __init__(self):
         self.cards = []
         self.reset()
 
+    def custom_deal(self, num, val):
+        return Card("♥️", num, val)
+    
     def deal(self):
         return self.cards.pop()
 
