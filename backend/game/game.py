@@ -9,6 +9,9 @@ class Game:
         while (game_start):
             self.bust_state = False
             self.blackjack = False
+            self.dealer_blackjack = False
+            self.insurance_check = False
+            self.insurance_choice = False
             self.bet_size = 0
             self.handle_bet()
             print("Dealing hand... \n")
@@ -16,15 +19,19 @@ class Game:
             dealer_hand = Hand()
             valid_game = True
             self.deal_start(player_hand, dealer_hand, shoe)
-            if self.blackjack == False:
-                while (valid_game):
-                    self.show_state(player_hand, dealer_hand)
-                    valid_game = self.handle_hit(player_hand, shoe)
+            self.show_state(player_hand, dealer_hand)
+            if self.insurance_check == True:
+                self.handle_insurance()
+            if self.dealer_blackjack == False:
+                if self.blackjack == False:
+                    while (valid_game):
+                        self.show_state(player_hand, dealer_hand)
+                        valid_game = self.handle_hit(player_hand, shoe)
             
             self.handle_dealer(dealer_hand, shoe)
             self.show_result(player_hand, dealer_hand)
             print("\nCards in shoe left: ", shoe.cards_left())
-
+            print("Current bal: ", self.balance)
             game_start = self.handle_redeal()
 
     def handle_bet(self):
@@ -48,9 +55,27 @@ class Game:
         hidden_card = shoe.deal()
         hidden_card.set_hidden(True)
         dealer.add_card(hidden_card)
+        
+        if dealer.cards[0].num == "A":
+            self.insurance_check = True
+        if int(dealer.cards[0].value) + int(dealer.cards[1].value) == 21:
+            self.dealer_blackjack = True
         if player.get_value() == 21:
             self.blackjack = True
     
+    def handle_insurance(self):
+        choice = input("Insurance? (y/n): ").lower()
+        while True:
+            if choice == "y":
+                deduction = self.bet_size/2
+                self.balance -= deduction
+                self.insurance_choice = True
+                break
+            elif choice == "n":
+                return
+            else:
+                print("Select valid choice: (y/n)")
+
     def handle_hit(self, player, shoe):
         choice = input("Hit? (y/n): ").lower()
         while True:
@@ -71,7 +96,7 @@ class Game:
 
     def handle_dealer(self, dealer, shoe):
         dealer.reveal_last()
-        if self.bust_state or self.blackjack:
+        if self.bust_state or self.blackjack or self.dealer_blackjack:
             return
         while True:
             if dealer.get_value() < 17:
@@ -88,7 +113,15 @@ class Game:
 
     def show_result(self, player, dealer):
         self.show_state(player, dealer)
-        if self.blackjack:
+        if self.dealer_blackjack:
+            if self.insurance_choice == False:
+                print("Dealer Win. Dealer Blackjack")
+            else:
+                insurance_size = self.bet_size/2
+                winnings = insurance_size + self.bet_size
+                self.balance += winnings
+                print("Player Tie. Dealer Blackjack")
+        elif self.blackjack:
             winnings = self.bet_size * 1.5 + self.bet_size
             self.balance += winnings
             print("Player Win. Player Blackjack")
