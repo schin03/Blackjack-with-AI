@@ -1,4 +1,4 @@
-from hand_state import HandState
+from backend.game.states.hand_state import HandState
 class Hand:
     def __init__(self):
         self.cards = []
@@ -14,10 +14,7 @@ class Hand:
         total = 0
         aces = 0
         for card in self.cards:
-            if card.get_hidden() == True:
-                continue
             total += int(card.value)
-
             if card.num == "A":
                 aces += 1
         
@@ -27,6 +24,9 @@ class Hand:
         
         return total
     
+    def blackjack_check(self):
+        return self.get_value == 21
+
     def bust_check(self):
         return self.get_value() > 21
     

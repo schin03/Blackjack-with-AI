@@ -1,5 +1,5 @@
 from .hand import Hand
-from .hand_state import HandState
+from .states.hand_state import HandState
 from .errors.blackjack_errors import InsufficientFundsError, InsufficientFundsError
 
 class Player:
@@ -7,8 +7,11 @@ class Player:
         self.hands = []
         self.balance = bal
         self.current_bet = 0
-    
-    
+
+    def blackjack_check(self):
+        if self.hands[0].blackjack_check():
+            self.state = HandState.BLACKJACK
+
     def choose_bet(self, bet_amount):
         # should throw if incorrect
         if bet_amount > self.balance:
