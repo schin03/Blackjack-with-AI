@@ -1,6 +1,8 @@
+from hand_state import HandState
 class Hand:
     def __init__(self):
         self.cards = []
+        self.state = HandState.ACTIVE
     
     def __str__(self):
         return ", ".join(str(card.get_card_val()) for card in self.cards)
@@ -28,6 +30,14 @@ class Hand:
     def bust_check(self):
         return self.get_value() > 21
     
+    def split_check(self):
+        if len(self.cards) != 2:
+            return False
+        card_1 = self.cards[0]
+        card_2 = self.cards[1]
+        return card_1.value == card_2.value
+          
+
     def reveal_last(self):
         self.cards[-1].set_hidden(False)
 
