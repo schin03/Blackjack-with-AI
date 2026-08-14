@@ -1,6 +1,6 @@
 from .hand import Hand
 from .states.hand_state import HandState
-from .errors.blackjack_errors import InsufficientFundsError, InsufficientFundsError
+from .errors.blackjack_errors import InsufficientFundsError, InvalidHandError
 
 class Player:
     def __init__(self, bal):
@@ -40,7 +40,7 @@ class Player:
     def split(self, hand_index):
         split_hand = self.hands[hand_index]
         if split_hand.split_check() == False:
-            raise InsufficientFundsError("Invalid hand to split")
+            raise InvalidHandError("Invalid hand to split")
         if self.balance - self.current_bet < 0:
             raise InsufficientFundsError("Insufficient Funds")
         self.balance -= self.current_bet

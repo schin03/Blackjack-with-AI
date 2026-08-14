@@ -13,8 +13,8 @@ class Card:
         return str(self)
 
     def set_hidden(self, state):
-        self.icon = "⍰"
         self.hidden = state
+        self.icon = "⍰" if state else self.suit
 
     def get_hidden(self):
         return self.hidden

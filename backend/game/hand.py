@@ -25,7 +25,7 @@ class Hand:
         return total
     
     def blackjack_check(self):
-        return self.get_value == 21
+        return self.get_value() == 21
 
     def bust_check(self):
         return self.get_value() > 21
