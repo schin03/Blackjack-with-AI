@@ -1,6 +1,6 @@
 import secrets
 
-from .game_textbased import Game
+from .game import Game
 
 class GameManager:
     def __init__(self):
@@ -12,6 +12,7 @@ class GameManager:
         game = Game(game_id, balance)
 
         self.games[game_id] = game
+        return game
 
 
     def get_game(self, game_id):

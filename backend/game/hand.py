@@ -14,6 +14,8 @@ class Hand:
         total = 0
         aces = 0
         for card in self.cards:
+            if card.hidden == True:
+                continue
             total += int(card.value)
             if card.num == "A":
                 aces += 1
@@ -26,6 +28,12 @@ class Hand:
     
     def blackjack_check(self):
         return self.get_value() == 21
+
+    def dealer_blackjack_check(self):
+        self.reveal_last()
+        bool = self.get_value()
+        self.cards[-1].set_hidden(True)
+        return bool
 
     def bust_check(self):
         return self.get_value() > 21

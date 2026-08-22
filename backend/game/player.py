@@ -13,11 +13,11 @@ class Player:
             self.state = HandState.BLACKJACK
 
     def choose_bet(self, bet_amount):
-        # should throw if incorrect
         if bet_amount > self.balance:
             raise InsufficientFundsError("Insufficient Funds")
         else:
             self.current_bet = bet_amount
+            self.balance -= bet_amount
 
     def add_hand(self, hand):
         self.hands.append(hand)
@@ -53,3 +53,6 @@ class Player:
 
         self.hands[hand_index] = split_1
         self.hands.insert(hand_index + 1, split_2)
+    
+    def player_reset(self):
+        self.hands = []
