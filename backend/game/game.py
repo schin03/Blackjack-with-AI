@@ -3,7 +3,8 @@ from .player import Player
 from .dealer import Dealer
 from .hand import Hand
 from .states.hand_state import HandState
-from .errors.blackjack_errors import InsufficientFundsError, InvalidHandError
+from .states.game_state import GameState
+
 
 class Game:
     def __init__(self, game_id, balance):
@@ -11,14 +12,14 @@ class Game:
         self.shoe = Shoe()
         self.player = Player(balance)
         self.dealer = Dealer()
-        self.game_active = False
+        self.game_state = GameState.INACTIVE
 
     def deal(self, bet):
         self.dealer.dealer_reset()
         self.player.player_reset()
         
         self.player.choose_bet(bet)
-        self.game_active = True
+        self.game_active = GameState.ACTIVE
 
         self.player.add_hand(Hand())
         self.player.hands[0].add_card(self.shoe.deal())
@@ -28,6 +29,12 @@ class Game:
         hidden_card = self.shoe.deal()
         hidden_card.set_hidden(True)
         self.dealer.hand.add_card(hidden_card)
+        
+        if self.dealer.upcard_ace():
+            self.game_state == GameState.INSURANCE
+        self.dealer.blackjack_check()
+        self.player.blackjack_check()
+        
 
     
     def hit(self, hand_index):
@@ -44,13 +51,13 @@ class Game:
         self.player.split(hand_index)
     
     def dealer_action(self, bustcheck):
-        self.game_active = False
         if bustcheck:
             self.dealer.player_bust()
         else:
             self.dealer.dealer_draw(self.shoe)
+        self.game_active = GameState.INACTIVE
         
-        
+    
     
     
 

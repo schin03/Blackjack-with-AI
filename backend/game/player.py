@@ -7,6 +7,7 @@ class Player:
         self.hands = []
         self.balance = bal
         self.current_bet = 0
+        self.insurance = False
 
     def blackjack_check(self):
         if self.hands[0].blackjack_check():
@@ -54,5 +55,9 @@ class Player:
         self.hands[hand_index] = split_1
         self.hands.insert(hand_index + 1, split_2)
     
+    def take_insurance(self):
+        self.insurance = True
+    
     def player_reset(self):
         self.hands = []
+        self.insurance = False

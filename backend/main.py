@@ -43,7 +43,7 @@ def deal(game_id: str, request: DealHand):
                 "cards": str(game.dealer.hand),
                 "value": game.dealer.hand.get_value()
             },
-            "game_active": game.game_active
+            "game_state": game.game_state
         }
     
     except InsufficientFundsError as e:
@@ -73,7 +73,7 @@ def hit(game_id: str):
             "cards": str(game.dealer.hand),
             "value": game.dealer.hand.get_value()
         },
-        "game_active": game.game_active
+        "game_state": game.game_state
     }
 
 @app.post("/games/{game_id}/double")
@@ -102,7 +102,7 @@ def double(game_id: str):
             "cards": str(game.dealer.hand),
             "value": game.dealer.hand.get_value()
         },
-        "game_active": game.game_active
+        "game_state": game.game_state
     }
 
 @app.post("/games/{game_id}/split")
@@ -136,7 +136,7 @@ def split(game_id: str):
             "cards": str(game.dealer.hand),
             "value": game.dealer.hand.get_value()
         },
-        "game_active": game.game_active
+        "game_state": game.game_state
     }
 
 @app.post("/games/{game_id}/stand")
@@ -154,6 +154,6 @@ def stand(game_id: str):
             "cards": str(game.dealer.hand),
             "value": game.dealer.hand.get_value()
         },
-        "game_active": game.game_active
+        "game_state": game.game_state
     }
 

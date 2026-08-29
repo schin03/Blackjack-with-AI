@@ -16,7 +16,7 @@ class Hand:
         for card in self.cards:
             if card.hidden == True:
                 continue
-            total += int(card.value)
+            total += int(card.value) 
             if card.num == "A":
                 aces += 1
         
@@ -27,7 +27,7 @@ class Hand:
         return total
     
     def blackjack_check(self):
-        return self.get_value() == 21
+        return self.get_value() == 21 and len(self.cards) == 2
 
     def dealer_blackjack_check(self):
         self.reveal_last()

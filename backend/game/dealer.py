@@ -25,3 +25,6 @@ class Dealer:
     
     def dealer_reset(self):
         self.hand = Hand()
+        
+    def upcard_ace(self):
+        return self.hand[0].value == 11
