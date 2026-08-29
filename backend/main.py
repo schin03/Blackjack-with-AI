@@ -76,6 +76,69 @@ def hit(game_id: str):
         "game_active": game.game_active
     }
 
+@app.post("/games/{game_id}/double")
+def double(game_id: str):
+    game = game_manager.get_game(game_id)
+    try:
+        game.double(0)
+    except InsufficientFundsError as e:
+         raise HTTPException(
+            status_code = 400,
+            detail=str(e)
+        )
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_active": game.game_active
+    }
+
+@app.post("/games/{game_id}/split")
+def split(game_id: str):
+    game = game_manager.get_game(game_id)
+    try:
+        game.split(0)
+    except InsufficientFundsError as e:
+         raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        )
+    except InvalidHandError as e:
+        raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        )
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_active": game.game_active
+    }
+
 @app.post("/games/{game_id}/stand")
 def stand(game_id: str):
     game = game_manager.get_game(game_id)

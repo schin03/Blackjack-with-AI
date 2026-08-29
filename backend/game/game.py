@@ -3,6 +3,7 @@ from .player import Player
 from .dealer import Dealer
 from .hand import Hand
 from .states.hand_state import HandState
+from .errors.blackjack_errors import InsufficientFundsError, InvalidHandError
 
 class Game:
     def __init__(self, game_id, balance):
@@ -36,6 +37,8 @@ class Game:
     
     def double(self, hand_index):
         self.player.double(hand_index, self.shoe)
+        state = self.player.hands[0].state == HandState.BUST
+        self.dealer_action(state)
 
     def split(self, hand_index):
         self.player.split(hand_index)
