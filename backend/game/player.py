@@ -55,8 +55,14 @@ class Player:
         self.hands[hand_index] = split_1
         self.hands.insert(hand_index + 1, split_2)
     
-    def take_insurance(self):
-        self.insurance = True
+    def insurance_choice(self, choice):
+        self.insurance = choice
+        # if insurance is taken, check for valid funding and deduct insurance unit from bal
+        if choice == True:
+            insurance_size = self.current_bet/2
+            if self.balance - insurance_size < 0:
+                raise InsufficientFundsError("Insufficient Funds")
+            self.balance -= insurance_size
     
     def player_reset(self):
         self.hands = []

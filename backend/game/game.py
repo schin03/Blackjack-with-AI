@@ -19,7 +19,7 @@ class Game:
         self.player.player_reset()
         
         self.player.choose_bet(bet)
-        self.game_active = GameState.ACTIVE
+        self.game_state = GameState.ACTIVE
 
         self.player.add_hand(Hand())
         self.player.hands[0].add_card(self.shoe.deal())
@@ -35,7 +35,30 @@ class Game:
         self.dealer.blackjack_check()
         self.player.blackjack_check()
         
+        
+    def insurance_choice(self, choice):
+        self.player.insurance_choice(choice)
+        if choice == True:
+            if self.dealer.hand.state == HandState.BLACKJACK:
+                self.game_state = GameState.DEALER_BLACKJACK_YES
+        else:
+            if self.dealer.hand.state == HandState.BLACKJACK:
+                self.game_state = GameState.DEALER_BLACKJACK_NO
 
+        self.handle_blackjacks()
+    
+    def handle_blackjacks(self):
+        if self.game_state == GameState.DEALER_BLACKJACK_YES:
+            if self.player.hands[0].state == HandState.BLACKJACK:
+                self.game_state = GameState.PLAYER_WIN
+            else:
+                self.game_state = GameState.PLAYER_PUSH
+        else:
+            if self.player.hands[0].state == HandState.BLACKJACK:
+                self.game_state = GameState.PLAYER_PUSH
+            else:
+                self.game_state = GameState.DEALER_WIN
+                
     
     def hit(self, hand_index):
         self.player.hit(hand_index, self.shoe)
