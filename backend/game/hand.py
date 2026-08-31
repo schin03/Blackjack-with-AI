@@ -1,6 +1,8 @@
+from backend.game.states.hand_state import HandState
 class Hand:
     def __init__(self):
         self.cards = []
+        self.state = HandState.ACTIVE
     
     def __str__(self):
         return ", ".join(str(card.get_card_val()) for card in self.cards)
@@ -12,10 +14,9 @@ class Hand:
         total = 0
         aces = 0
         for card in self.cards:
-            if card.get_hidden() == True:
+            if card.hidden == True:
                 continue
-            total += int(card.value)
-
+            total += int(card.value) 
             if card.num == "A":
                 aces += 1
         
@@ -25,9 +26,26 @@ class Hand:
         
         return total
     
+    def blackjack_check(self):
+        return self.get_value() == 21 and len(self.cards) == 2
+
+    def dealer_blackjack_check(self):
+        self.reveal_last()
+        bool = self.get_value()
+        self.cards[-1].set_hidden(True)
+        return bool
+
     def bust_check(self):
         return self.get_value() > 21
     
+    def split_check(self):
+        if len(self.cards) != 2:
+            return False
+        card_1 = self.cards[0]
+        card_2 = self.cards[1]
+        return card_1.value == card_2.value
+          
+
     def reveal_last(self):
         self.cards[-1].set_hidden(False)
 

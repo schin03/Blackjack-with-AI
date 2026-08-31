@@ -1,26 +1,202 @@
-from game.game import Game
+from fastapi import FastAPI
+from fastapi import HTTPException
+from pydantic import BaseModel
+from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
+from .game.game_manager import GameManager
+from .game.states.game_state import GameState
 
-def main():
-    game_state = True
-    game = Game()
-    while game_state:
-        choice = input("Start game? (y/n): ").lower()
-        if choice == "y":
-            while (True):
-                try:
-                    balance = int(input ("Enter starting balance: (integer value): "))
-                    break
-                except ValueError:
-                    print("Enter an integer\n")
-            game_state = False
-            game.play(True, balance)
+app = FastAPI()
+game_manager = GameManager()
+class DealHand(BaseModel):
+    bet: float
 
-        elif choice == "n":
-            print("Terminating")
-            break
-        else:
-            print("Select valid choice: (y/n)")
+@app.get("/")
+def root():
+    return {"message": "Blackjack API running"}
 
-   
-if __name__ == "__main__":
-    main()
+@app.post("/games")
+def create_game(balance: int):
+    game = game_manager.create_game(balance)
+    return {
+        "game_id": game.game_id
+        
+    }
+
+@app.post("/games/{game_id}/deal")
+def deal(game_id: str, request: DealHand):
+    try:
+        game = game_manager.get_game(game_id)
+        game.deal(request.bet)
+        
+        return {
+            "game_id": game_id,
+            "player": {
+                "hands": [{
+                    "cards": str(hand),
+                    "value": hand.get_value()
+                }
+                for hand in game.player.hands
+                ],
+                "current_bal": game.player.balance,
+                "current_bet": game.player.current_bet
+            },
+            "dealer": {
+                "cards": str(game.dealer.hand),
+                "value": game.dealer.hand.get_value()
+            },
+            "game_state": game.game_state
+        }
+    
+    except InsufficientFundsError as e:
+        raise HTTPException(
+            status_code = 400,
+            detail=str(e)
+        )
+@app.post("/games/{game_id}/insurance")
+def insurance(game_id: str, choice: bool):
+    game = game_manager.get_game(game_id)
+    try:
+        game.insurance_choice(choice)
+    except IncorrectState as e:
+        raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        )
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
+
+@app.post("/games/{game_id}/hit")
+def hit(game_id: str):
+    game = game_manager.get_game(game_id)
+    
+    try: 
+        game.hit(0)
+    except IncorrectState as e:
+        raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        ) 
+    
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
+
+@app.post("/games/{game_id}/double")
+def double(game_id: str):
+    game = game_manager.get_game(game_id)
+    try:
+        game.double(0)
+    except InsufficientFundsError or IncorrectState as e:
+         raise HTTPException(
+            status_code = 400,
+            detail=str(e)
+        )
+         
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
+
+@app.post("/games/{game_id}/split")
+def split(game_id: str):
+    game = game_manager.get_game(game_id)
+    try:
+        game.split(0)
+    except InsufficientFundsError as e:
+         raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        )
+    except InvalidHandError as e:
+        raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        )
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
+
+@app.post("/games/{game_id}/stand")
+def stand(game_id: str):
+    game = game_manager.get_game(game_id)
+    game.dealer_action(False)
+    
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
+
