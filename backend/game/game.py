@@ -2,6 +2,7 @@ from .shoe import Shoe
 from .player import Player
 from .dealer import Dealer
 from .hand import Hand
+from .errors.blackjack_errors import IncorrectState
 from .states.hand_state import HandState
 from .states.game_state import GameState
 
@@ -37,17 +38,23 @@ class Game:
         
         
     def insurance_choice(self, choice):
+        # current dealer hand should have up-card A
+        if self.game_state != GameState.INSURANCE:
+            raise IncorrectState("current state is not set as INSURANCE")
+        
         self.player.insurance_choice(choice)
-        if choice == True:
-            if self.dealer.hand.state == HandState.BLACKJACK:
+        if self.dealer.hand.state == HandState.BLACKJACK:
+            # if dealer bj
+            if choice == True:
                 self.game_state = GameState.DEALER_BLACKJACK_YES
-        else:
-            if self.dealer.hand.state == HandState.BLACKJACK:
+            else:
                 self.game_state = GameState.DEALER_BLACKJACK_NO
+            self.dealerAceBJ()
+        else: 
+            self.dealerAceNoBJ()
 
-        self.handle_blackjacks()
-    
-    def handle_blackjacks(self):
+    def dealerAceBJ(self):
+        # method guarantees end of hand, since dealer here has a BJ and should not continue
         if self.game_state == GameState.DEALER_BLACKJACK_YES:
             if self.player.hands[0].state == HandState.BLACKJACK:
                 self.game_state = GameState.PLAYER_WIN
@@ -58,9 +65,16 @@ class Game:
                 self.game_state = GameState.PLAYER_PUSH
             else:
                 self.game_state = GameState.DEALER_WIN
-                
-    
+
+    def dealerAceNoBJ(self):
+        # can return state of ACTIVE having just dealt with player's choice of insurance
+        self.game_state = GameState.ACTIVE
+
+
     def hit(self, hand_index):
+        if self.game_state != GameState.ACTIVE:
+            raise IncorrectState("current state is not set as ACTIVE")
+
         self.player.hit(hand_index, self.shoe)
         if self.player.hands[0].state == HandState.BUST:
             self.dealer_action(True)

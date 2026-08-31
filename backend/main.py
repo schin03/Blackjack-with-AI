@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
 from pydantic import BaseModel
-from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError
+from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from .game.game_manager import GameManager
 from .game.states.game_state import GameState
 
@@ -55,13 +55,31 @@ def deal(game_id: str, request: DealHand):
 @app.post("/games/{game_id}/insurance")
 def insurance(game_id: str, choice: bool):
     game = game_manager.get_game(game_id)
-    if game.game_state != GameState.INSURANCE:
+    try:
+        game.insurance_choice(choice)
+    except IncorrectState as e:
         raise HTTPException(
             status_code = 400,
-            detail = "invalid action"
+            detail = str(e)
         )
-    
-    game.insurance_choice(choice)
+    return {
+        "game_id": game_id,
+        "player": {
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
+        },
+        "dealer": {
+            "cards": str(game.dealer.hand),
+            "value": game.dealer.hand.get_value()
+        },
+        "game_state": game.game_state
+    }
 
 @app.post("/games/{game_id}/hit")
 def hit(game_id: str):

@@ -4,3 +4,6 @@ class InvalidHandError(Exception):
 class InsufficientFundsError(Exception):
     pass
 
+class IncorrectState(Exception):
+    pass
+
