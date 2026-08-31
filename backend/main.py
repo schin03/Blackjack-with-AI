@@ -84,7 +84,14 @@ def insurance(game_id: str, choice: bool):
 @app.post("/games/{game_id}/hit")
 def hit(game_id: str):
     game = game_manager.get_game(game_id)
-    game.hit(0)
+    
+    try: 
+        game.hit(0)
+    except IncorrectState as e:
+        raise HTTPException(
+            status_code = 400,
+            detail = str(e)
+        ) 
     
     return {
         "game_id": game_id,
@@ -110,11 +117,12 @@ def double(game_id: str):
     game = game_manager.get_game(game_id)
     try:
         game.double(0)
-    except InsufficientFundsError as e:
+    except InsufficientFundsError or IncorrectState as e:
          raise HTTPException(
             status_code = 400,
             detail=str(e)
         )
+         
     return {
         "game_id": game_id,
         "player": {

@@ -36,6 +36,10 @@ class Game:
         self.dealer.blackjack_check()
         self.player.blackjack_check()
         
+        if self.game_state == GameState.ACTIVE and self.player.hands[0].state == HandState.BLACKJACK:
+            self.game_state = GameState.PLAYER_BLACKJACK
+            self.handle_game_result()
+        
         
     def insurance_choice(self, choice):
         # current dealer hand should have up-card A
@@ -68,7 +72,11 @@ class Game:
 
     def dealerAceNoBJ(self):
         # can return state of ACTIVE having just dealt with player's choice of insurance
-        self.game_state = GameState.ACTIVE
+        if self.player.hands[0].state == HandState.BLACKJACK:
+            self.game_state = GameState.PLAYER_BLACKJACK
+            self.handle_game_result()
+        else:
+            self.game_state = GameState.ACTIVE
 
 
     def hit(self, hand_index):
@@ -80,6 +88,8 @@ class Game:
             self.dealer_action(True)
     
     def double(self, hand_index):
+        if self.game_state != GameState.ACTIVE:
+            raise IncorrectState("current state is not set as ACTIVE")
         self.player.double(hand_index, self.shoe)
         state = self.player.hands[0].state == HandState.BUST
         self.dealer_action(state)
@@ -90,11 +100,36 @@ class Game:
     def dealer_action(self, bustcheck):
         if bustcheck:
             self.dealer.player_bust()
+            self.game_state = GameState.DEALER_WIN
         else:
             self.dealer.dealer_draw(self.shoe)
-        self.game_active = GameState.INACTIVE
         
-    
+        self.handle_game_result()
+        
+    def handle_game_result(self):
+        if self.game_state != GameState.DEALER_WIN:
+            if self.dealer.hand.bust_check == True:
+                self.game_state = GameState.PLAYER_WIN
+            elif self.player.hands[0].get_value() > self.dealer.hand.get_value():
+                self.game_state = GameState.PLAYER_WIN
+            elif self.player.hands[0].get_value() == self.dealer.hand.get_value():
+                self.game_state = GameState.PLAYER_PUSH
+            else:
+                self.game_state = GameState.DEALER_WIN
+
+        self.payout_helper()
+        
+    def payout_helper(self):
+        bet = self.player.current_bet
+        if self.game_state == GameState.PLAYER_BLACKJACK:
+            self.player.balance += bet * 2.5
+        elif self.game_state == GameState.PLAYER_WIN:
+            self.player.balance += bet * 2
+        elif self.game_state == GameState.PLAYER_PUSH:
+            self.player.balance += bet
+        
+        self.game_state = GameState.INACTIVE
+
     
     
 
