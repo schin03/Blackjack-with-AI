@@ -184,8 +184,14 @@ def stand(game_id: str):
     return {
         "game_id": game_id,
         "player": {
-            "cards": str(game.player.hands[0]),
-            "value": game.player.hands[0].get_value()
+            "hands": [{
+                "cards": str(hand),
+                "value": hand.get_value()
+            }
+            for hand in game.player.hands
+            ],
+            "current_bal": game.player.balance,
+            "current_bet": game.player.current_bet
         },
         "dealer": {
             "cards": str(game.dealer.hand),

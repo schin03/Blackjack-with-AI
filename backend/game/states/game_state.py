@@ -4,8 +4,11 @@ class GameState(Enum):
     ACTIVE = "active"
     INACTIVE = "inactive"
     INSURANCE = "insurance"
+    PLAYER_DOUBLE = "player_double"
 
-    # 4 game-ending states to conclude hand
+    # 5 game-ending states to conclude hand
+    PLAYER_DOUBLE_WIN = "player_double_win"
+    PLAYER_DOUBLE_PUSH = "player_double_win"
     PLAYER_WIN = "player_win"
     PLAYER_BLACKJACK = "player_blackjack"
     PLAYER_PUSH = "player_push"

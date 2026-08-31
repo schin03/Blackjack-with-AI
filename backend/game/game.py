@@ -92,6 +92,7 @@ class Game:
             raise IncorrectState("current state is not set as ACTIVE")
         self.player.double(hand_index, self.shoe)
         state = self.player.hands[0].state == HandState.BUST
+        self.game_state = GameState.PLAYER_DOUBLE
         self.dealer_action(state)
 
     def split(self, hand_index):
@@ -108,12 +109,16 @@ class Game:
         
     def handle_game_result(self):
         if self.game_state != GameState.DEALER_WIN:
-            if self.dealer.hand.bust_check == True:
-                self.game_state = GameState.PLAYER_WIN
-            elif self.player.hands[0].get_value() > self.dealer.hand.get_value():
-                self.game_state = GameState.PLAYER_WIN
+            if (self.dealer.hand.bust_check == True) or (self.player.hands[0].get_value() > self.dealer.hand.get_value()):
+                if self.game_state == GameState.PLAYER_DOUBLE:
+                    self.game_state = GameState.PLAYER_DOUBLE_WIN
+                else:
+                    self.game_state = GameState.PLAYER_WIN
             elif self.player.hands[0].get_value() == self.dealer.hand.get_value():
-                self.game_state = GameState.PLAYER_PUSH
+                if self.game_state == GameState.PLAYER_DOUBLE:
+                    self.game_state = GameState.PLAYER_DOUBLE_PUSH
+                else:
+                    self.game_state = GameState.PLAYER_PUSH
             else:
                 self.game_state = GameState.DEALER_WIN
 
@@ -123,12 +128,14 @@ class Game:
         bet = self.player.current_bet
         if self.game_state == GameState.PLAYER_BLACKJACK:
             self.player.balance += bet * 2.5
-        elif self.game_state == GameState.PLAYER_WIN:
+        elif self.game_state == GameState.PLAYER_DOUBLE:
+            self.player.balance += bet * 4
+        elif self.game_state == GameState.PLAYER_WIN or self.game_state == GameState.PLAYER_DOUBLE_PUSH:
             self.player.balance += bet * 2
         elif self.game_state == GameState.PLAYER_PUSH:
             self.player.balance += bet
         
-        self.game_state = GameState.INACTIVE
+        
 
     
     

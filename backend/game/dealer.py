@@ -27,4 +27,4 @@ class Dealer:
         self.hand = Hand()
         
     def upcard_ace(self):
-        return self.hand[0].value == 11
+        return self.hand.cards[0].value == 11
