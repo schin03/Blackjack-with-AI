@@ -31,14 +31,17 @@ class Game:
         hidden_card.set_hidden(True)
         self.dealer.hand.add_card(hidden_card)
         
-        if self.dealer.upcard_ace():
-            self.game_state == GameState.INSURANCE
         self.dealer.blackjack_check()
         self.player.blackjack_check()
         
+        if self.dealer.upcard_ace():
+            self.game_state = GameState.INSURANCE
+            return
+        
+        
         if self.game_state == GameState.ACTIVE and self.player.hands[0].state == HandState.BLACKJACK:
             self.game_state = GameState.PLAYER_BLACKJACK
-            self.handle_game_result()
+            self.dealer_action()
         
         
     def insurance_choice(self, choice):
@@ -99,26 +102,32 @@ class Game:
         self.player.split(hand_index)
     
     def dealer_action(self, bustcheck):
-        if bustcheck:
-            self.dealer.player_bust()
-            self.game_state = GameState.DEALER_WIN
+        if bustcheck or self.game_state == GameState.PLAYER_BLACKJACK:
+            self.dealer.reveal_last()
+            if bustcheck:
+                self.game_state = GameState.DEALER_WIN
         else:
             self.dealer.dealer_draw(self.shoe)
-        
+
         self.handle_game_result()
         
     def handle_game_result(self):
         if self.game_state != GameState.DEALER_WIN:
-            if (self.dealer.hand.bust_check == True) or (self.player.hands[0].get_value() > self.dealer.hand.get_value()):
+            if (
+                self.dealer.hand.bust_check() == True
+                or self.player.hands[0].get_value() > self.dealer.hand.get_value()
+            ):
                 if self.game_state == GameState.PLAYER_DOUBLE:
                     self.game_state = GameState.PLAYER_DOUBLE_WIN
                 else:
                     self.game_state = GameState.PLAYER_WIN
+                    
             elif self.player.hands[0].get_value() == self.dealer.hand.get_value():
                 if self.game_state == GameState.PLAYER_DOUBLE:
                     self.game_state = GameState.PLAYER_DOUBLE_PUSH
                 else:
                     self.game_state = GameState.PLAYER_PUSH
+                    
             else:
                 self.game_state = GameState.DEALER_WIN
 
@@ -128,12 +137,14 @@ class Game:
         bet = self.player.current_bet
         if self.game_state == GameState.PLAYER_BLACKJACK:
             self.player.balance += bet * 2.5
-        elif self.game_state == GameState.PLAYER_DOUBLE:
+        elif self.game_state == GameState.PLAYER_DOUBLE_WIN:
             self.player.balance += bet * 4
-        elif self.game_state == GameState.PLAYER_WIN or self.game_state == GameState.PLAYER_DOUBLE_PUSH:
+        elif self.game_state == GameState.PLAYER_WIN:
             self.player.balance += bet * 2
         elif self.game_state == GameState.PLAYER_PUSH:
             self.player.balance += bet
+        elif self.game_state == GameState.PLAYER_DOUBLE_PUSH:
+            self.player.balance += bet * 2
         
         
 

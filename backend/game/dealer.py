@@ -20,7 +20,7 @@ class Dealer:
         else:
             self.hand.state  = HandState.STAND
 
-    def player_bust(self):
+    def reveal_last(self):
         self.hand.reveal_last()
     
     def dealer_reset(self):
