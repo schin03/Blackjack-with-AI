@@ -239,6 +239,7 @@ function App() {
                             onStand = {handleStand}
                             onDouble = {handleDouble}
                             disabled = {gameState.game_state !== "active"}
+                            handState = {gameState.player.hands[0].state}
                         />
                         
                         {/* Deal another hand */}

@@ -2,7 +2,8 @@ function GameControls({
     onHit,
     onStand,
     onDouble,
-    disabled
+    disabled,
+    handState
 }) {
     return (
         <div className = "controls">
@@ -21,7 +22,7 @@ function GameControls({
             </button>
             <button
                 onClick = {onDouble}
-                disabled = {disabled}
+                disabled = {disabled || handState !== "active"}
             >
                 Double
             </button>

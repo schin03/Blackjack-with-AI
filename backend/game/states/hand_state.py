@@ -1,7 +1,9 @@
 from enum import Enum
 
 class HandState(Enum):
-    ACTIVE = 1
-    STAND = 2
-    BUST = 3
-    BLACKJACK = 4
+    ACTIVE = "active"
+    HIT = "hit"
+    STAND = "stand"
+    BUST = "bust"
+    BLACKJACK = "blackjack"
+    

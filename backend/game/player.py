@@ -11,7 +11,7 @@ class Player:
 
     def blackjack_check(self):
         if self.hands[0].blackjack_check():
-            self.state = HandState.BLACKJACK
+            self.hands[0].state = HandState.BLACKJACK
 
     def choose_bet(self, bet_amount):
         if bet_amount > self.balance:
@@ -27,6 +27,7 @@ class Player:
         card = shoe.deal()
         curr_hand = self.hands[hand_index]
         curr_hand.add_card(card)
+        curr_hand.state = HandState.HIT
 
         # if current hand's value is > 21, update hand validity state
         if curr_hand.bust_check():

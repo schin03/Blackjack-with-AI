@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from .game.game_manager import GameManager
-from .game.states.game_state import GameState
+from .game.states.hand_state import HandState
 
 app = FastAPI()
 app.add_middleware(
@@ -42,7 +42,9 @@ def deal(game_id: str, request: DealHand):
             "player": {
                 "hands": [{
                     "cards": hand.cards,
-                    "value": hand.get_value()
+                    "value": hand.get_value(),
+                    "state": hand.state,
+                    "can_double" : hand.state == HandState.ACTIVE
                 }
                 for hand in game.player.hands
                 ],
@@ -107,7 +109,9 @@ def hit(game_id: str):
         "player": {
             "hands": [{
                 "cards": hand.cards,
-                "value": hand.get_value()
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -137,7 +141,9 @@ def double(game_id: str):
         "player": {
             "hands": [{
                 "cards": hand.cards,
-                "value": hand.get_value()
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -171,7 +177,9 @@ def split(game_id: str):
         "player": {
             "hands": [{
                 "cards": hand.cards,
-                "value": hand.get_value()
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -195,7 +203,9 @@ def stand(game_id: str):
         "player": {
             "hands": [{
                 "cards": hand.cards,
-                "value": hand.get_value()
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],

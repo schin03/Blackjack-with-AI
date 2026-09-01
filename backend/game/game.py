@@ -39,7 +39,7 @@ class Game:
             return
         
         
-        if self.game_state == GameState.ACTIVE and self.player.hands[0].state == HandState.BLACKJACK:
+        if self.player.hands[0].state == HandState.BLACKJACK:
             self.game_state = GameState.PLAYER_BLACKJACK
             self.dealer_action()
         
