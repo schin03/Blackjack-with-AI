@@ -32,6 +32,25 @@ export async function deal(game_id, bet) {
   return res.json();
 }
 
+// insurance choice api call
+export async function insurance(game_id, choice) {
+    const res = await fetch(`${API_URL}/games/${game_id}/insurance`, {
+       method: "POST",
+       headers: {
+        "Content-Type" : "application/json",
+       },
+       body: JSON.stringify({
+        choice: choice,
+       }),
+    })
+
+    if (!res.ok) {
+        throw new Error("Failed to make insurance choice in game session: " + game_id)
+    }
+
+    return res.json();
+}
+
 // player hit hand api call
 export async function hit(game_id) {
   const res = await fetch(`${API_URL}/games/${game_id}/hit`, {

@@ -3,7 +3,9 @@ import { useState } from 'react'
 import {
     create_game,
     deal,
+    insurance,
     hit,
+    double,
     stand
 } from "./api";
 
@@ -11,6 +13,7 @@ import Card from "./components/Card";
 import Hand from "./components/Hand";
 import GameControls from "./components/GameControls";
 import GameInfo from "./components/GameInfo";
+import InsurancePopup from './components/InsurancePopup';
 
 import './App.css'
 
@@ -55,6 +58,18 @@ function App() {
     }
   }
 
+  async function handleInsuranceChoice(choice) {
+    try {
+        setError(null);
+
+        const state = await insurance(gameId, choice);
+
+        setGameState(state);
+    } catch (err) {
+        setError(err.message);
+    }
+  }
+
   // --------------------------
   // Hit
   // --------------------------
@@ -63,6 +78,21 @@ function App() {
         setError(null);
         
         const state = await hit(gameId);
+
+        setGameState(state)
+    } catch (error) {
+        setError(error.message);
+    }
+  }
+
+  // --------------------------
+  // Double
+  // --------------------------
+  async function handleDouble() {
+    try {
+        setError(null);
+        
+        const state = await double(gameId);
 
         setGameState(state)
     } catch (error) {
@@ -162,6 +192,9 @@ function App() {
                     </div>
                 )}
 
+
+
+
                 {/* -------------------------- */}
                 {/* ACTIVE / COMPLETED GAME */}
                 {/* -------------------------- */}
@@ -204,9 +237,10 @@ function App() {
                         <GameControls
                             onHit = {handleHit}
                             onStand = {handleStand}
+                            onDouble = {handleDouble}
                             disabled = {gameState.game_state !== "active"}
                         />
-
+                        
                         {/* Deal another hand */}
                         {gameState.game_state !== "active" && (
                             <div className = "next_hand">
@@ -228,6 +262,12 @@ function App() {
                         )}
                     </>
                 )}
+                {gameState?.game_state === "insurance" && (
+                    <InsurancePopup
+                        onChoice = {handleInsuranceChoice}
+                    />
+                )}
+
             </div>
         )}
     </div>

@@ -1,6 +1,7 @@
 function GameControls({
     onHit,
     onStand,
+    onDouble,
     disabled
 }) {
     return (
@@ -9,7 +10,7 @@ function GameControls({
                 onClick = {onHit}
                 disabled = {disabled}
             >
-                    Hit
+                Hit
             </button>
 
             <button
@@ -17,6 +18,12 @@ function GameControls({
                 disabled = {disabled}
             >
                 Stand
+            </button>
+            <button
+                onClick = {onDouble}
+                disabled = {disabled}
+            >
+                Double
             </button>
 
         </div>
