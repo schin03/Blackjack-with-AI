@@ -1,11 +1,20 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from .game.game_manager import GameManager
 from .game.states.game_state import GameState
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["http://localhost:5173"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
+)
+
 game_manager = GameManager()
 class DealHand(BaseModel):
     bet: float
