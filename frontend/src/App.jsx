@@ -23,7 +23,10 @@ function App() {
 
   const [error, setError] = useState(null);
 
-  async function handleStartGame() {
+  // --------------------------
+  // Start new session
+  // --------------------------
+  async function handleStartSession() {
     try {
         setError(null);
 
@@ -31,16 +34,30 @@ function App() {
 
         setGameId(game.game_id);
 
-        const state = await deal(
-            game.game_id,
-            bet
-        );
-        setGameState(state)
     } catch (error) {
         setError(error.message);
     }
   }
 
+  // --------------------------
+  // Deal new hand
+  // --------------------------
+  async function handleDeal() {
+    try {
+        setError(null);
+
+        const state = await deal(gameId, bet);
+
+        setGameState(state);
+
+    } catch (err) {
+        setError(err.message);
+    }
+  }
+
+  // --------------------------
+  // Hit
+  // --------------------------
   async function handleHit() {
     try {
         setError(null);
@@ -53,6 +70,9 @@ function App() {
     }
   }
 
+  // --------------------------
+  // Stand
+  // --------------------------
   async function handleStand() {
     try {
         setError(null);
@@ -66,81 +86,148 @@ function App() {
     }
   }
 
+  // --------------------------
+  // Return to start session 
+  // --------------------------
+  function handleHome() {
+    setGameId(null);
+    setGameState(null);
+    setError(null);
+  }
+
   return (
     <div className = "app">
         <h1>BLACKJACK</h1>
-        {!gameState && (
-            <div className = "start-menu">
-                <label>
-                    Starting Balance: 
-                    <input
-                        type = "number"
-                        value = {balance}
-                        onChange = {(event) => setBalance(Number(event.target.value))}
-                    />
-                </label>
-                <label>
-                    Bet:
-                    <input
-                        type = "number"
-                        value = {bet}
-                        onChange = {(event) => setBet(Number(event.target.value))}
-                    />
-                </label>
 
-                <button onClick = {handleStartGame}>
-                    Start Game
-                </button>
-            </div>
-        )}
-
-        {error && (
+        {error &&  (
             <p className = "error">
                 {error}
             </p>
         )}
 
-        {gameState && (
+        {/* -------------------------- */}
+        {/* START SESSION SCREEN */}
+        {/* -------------------------- */}
+
+        {!gameId && (
+            <div className = "start-menu">
+                <h2>Start Session</h2>
+
+                <label>
+                    Starting Balance:
+                    <input
+                        type = "number"
+                        value = {balance}
+                        onChange = {(event) => 
+                            setBalance(Number(event.target.value))
+                        }
+                    />
+                    <button onClick = {handleStartSession}>
+                        Start Session
+                    </button>
+                </label>
+            </div>
+        )}
+
+        {/* -------------------------- */}
+        {/* GAME SCREEN */}
+        {/* -------------------------- */}
+
+        {gameId && (
             <div className = "table">
-                <GameInfo
-                    gameState = {gameState}
-                />
+                {/* Home Button */}
+                <button onClick = {handleHome}>
+                    Home
+                </button>
 
-                <section className = "dealer">
-                    <h2>Dealer</h2>
-                    <div className = "cards">
-                        {gameState.dealer.cards.map(
-                            (card, index) => (
-                                <Card
-                                    key = {index}
-                                    card = {card}
-                                />
-                            )
-                        )}
+                {/* -------------------------- */}
+                {/* If no hand is active */}
+                {/* -------------------------- */}
+
+                {!gameState && (
+                    <div className = "deal-menu">
+                        <h2>Place your bet</h2>
+                        <label>
+                            Bet:
+                            <input
+                                type = "number"
+                                value = {bet}
+                                onChange = {(event) => setBet(Number(event.target.value))}
+                            />
+                        </label>
+
+                        <button onClick = {handleDeal}>
+                            Deal
+                        </button>
                     </div>
-                    <p>
-                        Value: {gameState.dealer.value}
-                    </p>
-                </section>
-                
-                <section className = "player">
-                        <h2>Player</h2>
-                        {gameState.player.hands.map(
-                            (hand, index) => (
-                                <Hand
-                                    key = {index}
-                                    hand = {hand}
-                                />
-                            )
-                        )}
-                </section>
-                
-                <GameControls
-                    onHit = {handleHit}
-                    onStand = {handleStand}
-                    disabled = {false}
-                />
+                )}
 
+                {/* -------------------------- */}
+                {/* ACTIVE / COMPLETED GAME */}
+                {/* -------------------------- */}
+                {gameState && (
+                    <>
+                        <GameInfo
+                            gameState = {gameState}
+                        />
+
+                        <section className = "dealer">
+                            <h2>Dealer</h2>
+                            <div className = "cards">
+                                {gameState.dealer.cards.map(
+                                    (card, index) => (
+                                        <Card
+                                            key = {index}
+                                            card = {card}
+                                        />
+                                    )
+                                )}
+                            </div>
+                            <p>
+                                Value: {gameState.dealer.value}
+                            </p>
+                        </section>
+                        
+                        <section className = "player">
+                                <h2>Player</h2>
+                                {gameState.player.hands.map(
+                                    (hand, index) => (
+                                        <Hand
+                                            key = {index}
+                                            hand = {hand}
+                                        />
+                                    )
+                                )}
+                        </section>
+                        
+                        {/* Hit / Stand */}
+                        <GameControls
+                            onHit = {handleHit}
+                            onStand = {handleStand}
+                            disabled = {gameState.game_state !== "active"}
+                        />
+
+                        {/* Deal another hand */}
+                        {gameState.game_state !== "active" && (
+                            <div className = "next_hand">
+                                <label>
+                                    Bet:
+                                    <input
+                                        type = "number"
+                                        value = {bet}
+                                        onChange = {(event) => 
+                                            setBet(Number(event.target.value))
+                                        }
+                                    />
+                                </label>
+                                
+                                <button onClick = {handleDeal}>
+                                    Deal
+                                </button>      
+                            </div>
+                        )}
+                    </>
+                )}
             </div>
         )}
     </div>

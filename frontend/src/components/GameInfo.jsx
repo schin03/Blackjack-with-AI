@@ -6,7 +6,7 @@ function GameInfo( {gameState} ) {
     return (
         <div className = "game-info">
             <p>
-                Balance: ${gameState.player.balance}
+                Balance: ${gameState.player.current_bal}
             </p>
 
             <p>
