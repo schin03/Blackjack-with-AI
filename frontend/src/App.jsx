@@ -35,7 +35,6 @@ function App() {
             game.game_id,
             bet
         );
-
         setGameState(state)
     } catch (error) {
         setError(error.message);
@@ -139,14 +138,12 @@ function App() {
                 <GameControls
                     onHit = {handleHit}
                     onStand = {handleStand}
-                    disabled = {!gameState.game_active}
+                    disabled = {false}
                 />
 
             </div>
         )}
     </div>
   )
-
 }
-
 export default App

@@ -1,7 +1,7 @@
 function Card( {card} ) {
     return (
         <div className = "card">
-            {card}
+            {card.hidden ? "?" : `${card.num}${card.icon}`}
         </div>
     );
 }

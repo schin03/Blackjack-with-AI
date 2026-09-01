@@ -41,7 +41,7 @@ def deal(game_id: str, request: DealHand):
             "game_id": game_id,
             "player": {
                 "hands": [{
-                    "cards": str(hand),
+                    "cards": hand.cards,
                     "value": hand.get_value()
                 }
                 for hand in game.player.hands
@@ -50,7 +50,7 @@ def deal(game_id: str, request: DealHand):
                 "current_bet": game.player.current_bet
             },
             "dealer": {
-                "cards": str(game.dealer.hand),
+                "cards": game.dealer.hand.cards,
                 "value": game.dealer.hand.get_value()
             },
             "game_state": game.game_state
@@ -75,7 +75,7 @@ def insurance(game_id: str, choice: bool):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
+                "cards": hand.cards,
                 "value": hand.get_value()
             }
             for hand in game.player.hands
@@ -84,7 +84,7 @@ def insurance(game_id: str, choice: bool):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
+            "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value()
         },
         "game_state": game.game_state
@@ -106,7 +106,7 @@ def hit(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
+                "cards": hand.cards,
                 "value": hand.get_value()
             }
             for hand in game.player.hands
@@ -115,7 +115,7 @@ def hit(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
+            "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value()
         },
         "game_state": game.game_state
@@ -136,7 +136,7 @@ def double(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
+                "cards": hand.cards,
                 "value": hand.get_value()
             }
             for hand in game.player.hands
@@ -145,7 +145,7 @@ def double(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
+            "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value()
         },
         "game_state": game.game_state
@@ -170,7 +170,7 @@ def split(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
+                "cards": hand.cards,
                 "value": hand.get_value()
             }
             for hand in game.player.hands
@@ -179,7 +179,7 @@ def split(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
+            "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value()
         },
         "game_state": game.game_state
@@ -194,7 +194,7 @@ def stand(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
+                "cards": hand.cards,
                 "value": hand.get_value()
             }
             for hand in game.player.hands
@@ -203,7 +203,7 @@ def stand(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
+            "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value()
         },
         "game_state": game.game_state
