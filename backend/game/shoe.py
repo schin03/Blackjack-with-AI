@@ -1,6 +1,6 @@
 import random
-from backend.game.deck import Deck
-from backend.game.card import Card
+from game.deck import Deck
+from game.card import Card
 
 class Shoe:
     def __init__(self):

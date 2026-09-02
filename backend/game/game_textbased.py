@@ -1,5 +1,5 @@
-from backend.game.shoe import Shoe
-from backend.game.hand import Hand
+from game.shoe import Shoe
+from game.hand import Hand
 
 class Game:
     def play(self, state, bal):

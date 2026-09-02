@@ -1,4 +1,4 @@
-from backend.game.states.hand_state import HandState
+from game.states.hand_state import HandState
 class Hand:
     def __init__(self):
         self.cards = []

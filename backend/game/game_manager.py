@@ -1,6 +1,6 @@
 import secrets
 
-from backend.game.game import Game
+from game import Game
 
 class GameManager:
     def __init__(self):

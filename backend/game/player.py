@@ -1,6 +1,6 @@
-from backend.game.hand import Hand
-from backend.game.states.hand_state import HandState
-from backend.game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError
+from game.hand import Hand
+from game.states.hand_state import HandState
+from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError
 
 class Player:
     def __init__(self, bal):

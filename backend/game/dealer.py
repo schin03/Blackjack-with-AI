@@ -1,5 +1,5 @@
-from backend.game.hand import Hand
-from backend.game.states.hand_state import HandState
+from game.hand import Hand
+from game.states.hand_state import HandState
 
 class Dealer:
     def __init__(self):
