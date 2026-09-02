@@ -9,7 +9,8 @@ from game.states.hand_state import HandState
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    allow_origins = ["http://localhost:5173"],
+    allow_origins = ["http://localhost:5173",
+                     "https://blackjack-with-ai.vercel.app/"],
     allow_credentials = True,
     allow_methods = ["*"],
     allow_headers = ["*"]
