@@ -24,10 +24,10 @@ class Game:
 
         self.player.add_hand(Hand())
         self.player.hands[0].add_card(self.shoe.deal())
-        self.dealer.hand.add_card(self.shoe.deal())
+        self.dealer.hand.add_card(self.shoe.custom_deal("A", 11))
         self.player.hands[0].add_card(self.shoe.deal())
 
-        hidden_card = self.shoe.deal()
+        hidden_card = self.shoe.custom_deal("9", 9)
         hidden_card.set_hidden(True)
         self.dealer.hand.add_card(hidden_card)
         
@@ -52,6 +52,7 @@ class Game:
         self.player.insurance_choice(choice)
         if self.dealer.hand.state == HandState.BLACKJACK:
             # if dealer bj
+            self.dealer.reveal_last()
             if choice == True:
                 self.game_state = GameState.DEALER_BLACKJACK_YES
             else:
@@ -72,6 +73,7 @@ class Game:
                 self.game_state = GameState.PLAYER_PUSH
             else:
                 self.game_state = GameState.DEALER_WIN
+        self.handle_game_result()
 
     def dealerAceNoBJ(self):
         # can return state of ACTIVE having just dealt with player's choice of insurance

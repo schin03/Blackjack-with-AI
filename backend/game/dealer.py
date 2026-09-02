@@ -6,7 +6,7 @@ class Dealer:
         self.hand = Hand()
 
     def blackjack_check(self):
-        if self.hand.blackjack_check():
+        if self.hand.dealer_blackjack_check():
             self.hand.state = HandState.BLACKJACK
 
     def dealer_draw(self, shoe):

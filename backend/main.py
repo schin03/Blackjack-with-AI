@@ -19,6 +19,9 @@ game_manager = GameManager()
 class DealHand(BaseModel):
     bet: float
 
+class InsuranceChoice(BaseModel):
+    choice: bool
+
 @app.get("/")
 def root():
     return {"message": "Blackjack API running"}
@@ -64,10 +67,10 @@ def deal(game_id: str, request: DealHand):
             detail=str(e)
         )
 @app.post("/games/{game_id}/insurance")
-def insurance(game_id: str, choice: bool):
+def insurance(game_id: str, req: InsuranceChoice):
     game = game_manager.get_game(game_id)
     try:
-        game.insurance_choice(choice)
+        game.insurance_choice(req.choice)
     except IncorrectState as e:
         raise HTTPException(
             status_code = 400,
@@ -78,7 +81,9 @@ def insurance(game_id: str, choice: bool):
         "player": {
             "hands": [{
                 "cards": hand.cards,
-                "value": hand.get_value()
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
