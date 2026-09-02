@@ -1,4 +1,4 @@
-from .card import Card
+from backend.game.card import Card
 
 class Deck: 
     def __init__(self):

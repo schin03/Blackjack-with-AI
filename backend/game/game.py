@@ -1,10 +1,10 @@
-from .shoe import Shoe
-from .player import Player
-from .dealer import Dealer
-from .hand import Hand
-from .errors.blackjack_errors import IncorrectState
-from .states.hand_state import HandState
-from .states.game_state import GameState
+from backend.game.shoe import Shoe
+from backend.game.player import Player
+from backend.game.dealer import Dealer
+from backend.game.hand import Hand
+from backend.game.errors.blackjack_errors import IncorrectState
+from backend.game.states.hand_state import HandState
+from backend.game.states.game_state import GameState
 
 
 class Game:
