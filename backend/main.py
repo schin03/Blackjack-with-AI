@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
-from .game.game_manager import GameManager
-from .game.states.hand_state import HandState
+from backend.game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
+from backend.game.game_manager import GameManager
+from backend.game.states.hand_state import HandState
 
 app = FastAPI()
 app.add_middleware(
