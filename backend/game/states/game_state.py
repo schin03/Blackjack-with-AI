@@ -8,7 +8,7 @@ class GameState(Enum):
 
     # 5 game-ending states to conclude hand
     PLAYER_DOUBLE_WIN = "player_double_win"
-    PLAYER_DOUBLE_PUSH = "player_double_win"
+    PLAYER_DOUBLE_PUSH = "player_double_push"
     PLAYER_WIN = "player_win"
     PLAYER_BLACKJACK = "player_blackjack"
     PLAYER_PUSH = "player_push"

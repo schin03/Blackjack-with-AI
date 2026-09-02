@@ -1,14 +1,26 @@
 from fastapi import FastAPI
 from fastapi import HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from .game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from .game.game_manager import GameManager
-from .game.states.game_state import GameState
+from .game.states.hand_state import HandState
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins = ["http://localhost:5173"],
+    allow_credentials = True,
+    allow_methods = ["*"],
+    allow_headers = ["*"]
+)
+
 game_manager = GameManager()
 class DealHand(BaseModel):
     bet: float
+
+class InsuranceChoice(BaseModel):
+    choice: bool
 
 @app.get("/")
 def root():
@@ -32,8 +44,10 @@ def deal(game_id: str, request: DealHand):
             "game_id": game_id,
             "player": {
                 "hands": [{
-                    "cards": str(hand),
-                    "value": hand.get_value()
+                    "cards": hand.cards,
+                    "value": hand.get_value(),
+                    "state": hand.state,
+                    "can_double" : hand.state == HandState.ACTIVE
                 }
                 for hand in game.player.hands
                 ],
@@ -41,8 +55,9 @@ def deal(game_id: str, request: DealHand):
                 "current_bet": game.player.current_bet
             },
             "dealer": {
-                "cards": str(game.dealer.hand),
-                "value": game.dealer.hand.get_value()
+                "cards": game.dealer.hand.cards,
+                "value": game.dealer.hand.get_value(),
+                "state": game.dealer.hand.state
             },
             "game_state": game.game_state
         }
@@ -53,10 +68,10 @@ def deal(game_id: str, request: DealHand):
             detail=str(e)
         )
 @app.post("/games/{game_id}/insurance")
-def insurance(game_id: str, choice: bool):
+def insurance(game_id: str, req: InsuranceChoice):
     game = game_manager.get_game(game_id)
     try:
-        game.insurance_choice(choice)
+        game.insurance_choice(req.choice)
     except IncorrectState as e:
         raise HTTPException(
             status_code = 400,
@@ -66,8 +81,10 @@ def insurance(game_id: str, choice: bool):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
-                "value": hand.get_value()
+                "cards": hand.cards,
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -75,8 +92,9 @@ def insurance(game_id: str, choice: bool):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
-            "value": game.dealer.hand.get_value()
+            "cards": game.dealer.hand.cards,
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -97,8 +115,10 @@ def hit(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
-                "value": hand.get_value()
+                "cards": hand.cards,
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -106,8 +126,9 @@ def hit(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
-            "value": game.dealer.hand.get_value()
+            "cards": game.dealer.hand.cards,
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -127,8 +148,10 @@ def double(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
-                "value": hand.get_value()
+                "cards": hand.cards,
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -136,8 +159,9 @@ def double(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
-            "value": game.dealer.hand.get_value()
+            "cards": game.dealer.hand.cards,
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -161,8 +185,10 @@ def split(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
-                "value": hand.get_value()
+                "cards": hand.cards,
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -170,8 +196,9 @@ def split(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
-            "value": game.dealer.hand.get_value()
+            "cards": game.dealer.hand.cards,
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -185,8 +212,10 @@ def stand(game_id: str):
         "game_id": game_id,
         "player": {
             "hands": [{
-                "cards": str(hand),
-                "value": hand.get_value()
+                "cards": hand.cards,
+                "value": hand.get_value(),
+                "state": hand.state,
+                "can_double" : hand.state == HandState.ACTIVE
             }
             for hand in game.player.hands
             ],
@@ -194,8 +223,9 @@ def stand(game_id: str):
             "current_bet": game.player.current_bet
         },
         "dealer": {
-            "cards": str(game.dealer.hand),
-            "value": game.dealer.hand.get_value()
+            "cards": game.dealer.hand.cards,
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }

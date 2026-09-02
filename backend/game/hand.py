@@ -30,9 +30,9 @@ class Hand:
         return self.get_value() == 21 and len(self.cards) == 2
 
     def dealer_blackjack_check(self):
-        self.reveal_last()
-        bool = self.get_value()
-        self.cards[-1].set_hidden(True)
+        self.hide_last(False)
+        bool = self.blackjack_check()
+        self.hide_last(True)
         return bool
 
     def bust_check(self):
@@ -46,7 +46,7 @@ class Hand:
         return card_1.value == card_2.value
           
 
-    def reveal_last(self):
-        self.cards[-1].set_hidden(False)
+    def hide_last(self, bool):
+        self.cards[-1].set_hidden(bool)
 
     
