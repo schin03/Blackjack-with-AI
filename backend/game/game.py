@@ -16,6 +16,9 @@ class Game:
         self.game_state = GameState.INACTIVE
 
     def deal(self, bet):
+        if self.shoe.cards_left() < 25:
+            self.shoe.reset()
+        
         self.dealer.dealer_reset()
         self.player.player_reset()
         
