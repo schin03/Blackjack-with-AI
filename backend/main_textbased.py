@@ -1,4 +1,4 @@
-from backend.game.game_textbased import Game
+from game.game_textbased import Game
 
 def main():
     game_state = True
