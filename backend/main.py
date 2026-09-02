@@ -56,7 +56,8 @@ def deal(game_id: str, request: DealHand):
             },
             "dealer": {
                 "cards": game.dealer.hand.cards,
-                "value": game.dealer.hand.get_value()
+                "value": game.dealer.hand.get_value(),
+                "state": game.dealer.hand.state
             },
             "game_state": game.game_state
         }
@@ -92,7 +93,8 @@ def insurance(game_id: str, req: InsuranceChoice):
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value()
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -125,7 +127,8 @@ def hit(game_id: str):
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value()
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -157,7 +160,8 @@ def double(game_id: str):
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value()
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -193,7 +197,8 @@ def split(game_id: str):
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value()
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }
@@ -219,7 +224,8 @@ def stand(game_id: str):
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value()
+            "value": game.dealer.hand.get_value(),
+            "state": game.dealer.hand.state
         },
         "game_state": game.game_state
     }

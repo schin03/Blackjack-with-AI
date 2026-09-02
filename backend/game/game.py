@@ -24,10 +24,10 @@ class Game:
 
         self.player.add_hand(Hand())
         self.player.hands[0].add_card(self.shoe.deal())
-        self.dealer.hand.add_card(self.shoe.custom_deal("A", 11))
+        self.dealer.hand.add_card(self.shoe.deal())
         self.player.hands[0].add_card(self.shoe.deal())
 
-        hidden_card = self.shoe.custom_deal("9", 9)
+        hidden_card = self.shoe.deal()
         hidden_card.set_hidden(True)
         self.dealer.hand.add_card(hidden_card)
         
@@ -41,7 +41,8 @@ class Game:
         
         if self.player.hands[0].state == HandState.BLACKJACK:
             self.game_state = GameState.PLAYER_BLACKJACK
-            self.dealer_action()
+            self.dealer.hide_last(False)
+            self.payout_helper()
         
         
     def insurance_choice(self, choice):
@@ -52,7 +53,7 @@ class Game:
         self.player.insurance_choice(choice)
         if self.dealer.hand.state == HandState.BLACKJACK:
             # if dealer bj
-            self.dealer.reveal_last()
+            self.dealer.hide_last(False)
             if choice == True:
                 self.game_state = GameState.DEALER_BLACKJACK_YES
             else:
@@ -65,6 +66,7 @@ class Game:
         # method guarantees end of hand, since dealer here has a BJ and should not continue
         if self.game_state == GameState.DEALER_BLACKJACK_YES:
             if self.player.hands[0].state == HandState.BLACKJACK:
+                self.player.balance += self.player.current_bet/2
                 self.game_state = GameState.PLAYER_WIN
             else:
                 self.game_state = GameState.PLAYER_PUSH
@@ -73,13 +75,14 @@ class Game:
                 self.game_state = GameState.PLAYER_PUSH
             else:
                 self.game_state = GameState.DEALER_WIN
-        self.handle_game_result()
+        self.payout_helper()
 
     def dealerAceNoBJ(self):
         # can return state of ACTIVE having just dealt with player's choice of insurance
         if self.player.hands[0].state == HandState.BLACKJACK:
             self.game_state = GameState.PLAYER_BLACKJACK
-            self.handle_game_result()
+            self.dealer.hide_last(False)
+            self.payout_helper()
         else:
             self.game_state = GameState.ACTIVE
 
@@ -105,7 +108,7 @@ class Game:
     
     def dealer_action(self, bustcheck):
         if bustcheck or self.game_state == GameState.PLAYER_BLACKJACK:
-            self.dealer.reveal_last()
+            self.dealer.hide_last(False)
             if bustcheck:
                 self.game_state = GameState.DEALER_WIN
         else:
