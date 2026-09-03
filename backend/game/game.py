@@ -98,29 +98,40 @@ class Game:
             raise IncorrectState("current state is not set as ACTIVE")
 
         self.player.hit(self.current_hand, self.shoe)
+        
         if self.player.hands[self.current_hand].state == HandState.BUST:
-            self.dealer_action(True)
+            self.next_hand()
     
     def double(self):
         if self.game_state != GameState.ACTIVE:
             raise IncorrectState("current state is not set as ACTIVE")
+        
         self.player.double(self.current_hand, self.shoe)
-        state = self.player.hands[0].state == HandState.BUST
+        
+        
         self.game_state = GameState.PLAYER_DOUBLE
-        self.dealer_action(state)
+        
+        self.next_hand()
 
     def split(self):
         self.player.split(self.current_hand)
+        
+        # deal the second card to the first split hand
+        self.player.hands[self.current_hand].add_card(self.shoe.deal())
     
     def next_hand(self):
         self.current_hand += 1
+        
+        # move onto the next hand, deal a card
         if self.current_hand < len(self.player.hands):
+            self.player.hands[self.current_hand].add_card(self.shoe.deal())
             self.game_state = GameState.ACTIVE
         else:
             self.dealer_action(False)
     
     def stand(self):
         self.player.hands[self.current_hand].state = HandState.STAND
+        self.next_hand()
     
     def dealer_action(self, bustcheck):
         if bustcheck or self.game_state == GameState.PLAYER_BLACKJACK:
