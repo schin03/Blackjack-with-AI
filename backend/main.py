@@ -105,7 +105,7 @@ def hit(game_id: str):
     game = game_manager.get_game(game_id)
     
     try: 
-        game.hit(0)
+        game.hit()
     except IncorrectState as e:
         raise HTTPException(
             status_code = 400,
@@ -138,7 +138,7 @@ def hit(game_id: str):
 def double(game_id: str):
     game = game_manager.get_game(game_id)
     try:
-        game.double(0)
+        game.double()
     except InsufficientFundsError or IncorrectState as e:
          raise HTTPException(
             status_code = 400,
@@ -171,7 +171,7 @@ def double(game_id: str):
 def split(game_id: str):
     game = game_manager.get_game(game_id)
     try:
-        game.split(0)
+        game.split()
     except InsufficientFundsError as e:
          raise HTTPException(
             status_code = 400,
@@ -207,7 +207,7 @@ def split(game_id: str):
 @app.post("/games/{game_id}/stand")
 def stand(game_id: str):
     game = game_manager.get_game(game_id)
-    game.dealer_action(False)
+    game.stand()
     
     return {
         "game_id": game_id,

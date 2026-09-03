@@ -14,6 +14,7 @@ class Game:
         self.player = Player(balance)
         self.dealer = Dealer()
         self.game_state = GameState.INACTIVE
+        self.current_hand = 0
 
     def deal(self, bet):
         if self.shoe.cards_left() < 25:
@@ -21,6 +22,8 @@ class Game:
         
         self.dealer.dealer_reset()
         self.player.player_reset()
+        
+        self.current_hand = 0
         
         self.player.choose_bet(bet)
         self.game_state = GameState.ACTIVE
@@ -90,24 +93,34 @@ class Game:
             self.game_state = GameState.ACTIVE
 
 
-    def hit(self, hand_index):
+    def hit(self):
         if self.game_state != GameState.ACTIVE:
             raise IncorrectState("current state is not set as ACTIVE")
 
-        self.player.hit(hand_index, self.shoe)
-        if self.player.hands[0].state == HandState.BUST:
+        self.player.hit(self.current_hand, self.shoe)
+        if self.player.hands[self.current_hand].state == HandState.BUST:
             self.dealer_action(True)
     
-    def double(self, hand_index):
+    def double(self):
         if self.game_state != GameState.ACTIVE:
             raise IncorrectState("current state is not set as ACTIVE")
-        self.player.double(hand_index, self.shoe)
+        self.player.double(self.current_hand, self.shoe)
         state = self.player.hands[0].state == HandState.BUST
         self.game_state = GameState.PLAYER_DOUBLE
         self.dealer_action(state)
 
-    def split(self, hand_index):
-        self.player.split(hand_index)
+    def split(self):
+        self.player.split(self.current_hand)
+    
+    def next_hand(self):
+        self.current_hand += 1
+        if self.current_hand < len(self.player.hands):
+            self.game_state = GameState.ACTIVE
+        else:
+            self.dealer_action(False)
+    
+    def stand(self):
+        self.player.hands[self.current_hand].state = HandState.STAND
     
     def dealer_action(self, bustcheck):
         if bustcheck or self.game_state == GameState.PLAYER_BLACKJACK:
