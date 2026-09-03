@@ -243,7 +243,7 @@ button:disabled {
   justify-content: center;
   align-items: center;
 
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(80, 80, 80, 0.11);
 
   z-index: 1000;
 }
@@ -260,6 +260,8 @@ button:disabled {
   text-align: center;
 
   box-sizing: border-box;
+
+  transform: translateY(-100px);
 }
 
 .insurance-popup h2 {
