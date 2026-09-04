@@ -180,7 +180,7 @@ class Game:
         if self.game_state == GameState.PLAYER_BLACKJACK:
             self.player.balance += bet * 2.5
         elif self.game_state == GameState.PLAYER_DOUBLE_WIN:
-            self.player.balance += bet * 4
+            self.player.balance += bet * 2
         elif self.game_state == GameState.PLAYER_WIN:
             self.player.balance += bet * 2
         elif self.game_state == GameState.PLAYER_PUSH:
