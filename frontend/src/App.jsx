@@ -5,6 +5,7 @@ import {
     deal,
     insurance,
     hit,
+    split,
     double,
     stand
 } from "./api";
@@ -262,7 +263,7 @@ function App() {
                             onDouble = {handleDouble}
                             onSplit = {handleSplit}
                             disabled = {gameState.game_state !== "active"}
-                            handState = {activeHand}
+                            activeHand = {activeHand}
                         />
                         
                         {/* Deal another hand */}
