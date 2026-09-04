@@ -1,7 +1,9 @@
 from game.states.hand_state import HandState
 class Hand:
-    def __init__(self):
+    def __init__(self, bet = 0, is_split = False):
         self.cards = []
+        self.bet = bet
+        self.is_split = is_split
         self.state = HandState.ACTIVE
     
     def __str__(self):
@@ -35,6 +37,9 @@ class Hand:
         self.hide_last(True)
         return bool
 
+    def hide_last(self, bool):
+            self.cards[-1].set_hidden(bool)
+
     def bust_check(self):
         return self.get_value() > 21
     
@@ -45,8 +50,7 @@ class Hand:
         card_2 = self.cards[1]
         return card_1.value == card_2.value
           
-
-    def hide_last(self, bool):
-        self.cards[-1].set_hidden(bool)
+    def can_split(self):
+        return self.state == HandState.ACTIVE and self.split_check()
 
     

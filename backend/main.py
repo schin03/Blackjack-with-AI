@@ -139,7 +139,7 @@ def double(game_id: str):
     game = game_manager.get_game(game_id)
     try:
         game.double()
-    except InsufficientFundsError or IncorrectState as e:
+    except InsufficientFundsError or IncorrectState or InvalidHandError as e:
          raise HTTPException(
             status_code = 400,
             detail=str(e)
