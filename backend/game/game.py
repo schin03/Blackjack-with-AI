@@ -32,9 +32,9 @@ class Game:
         self.game_state = GameState.ACTIVE
 
         self.player.add_hand(Hand(bet))
-        self.player.hands[0].add_card(self.shoe.deal())
+        self.player.hands[0].add_card(self.shoe.custom_deal("8", 8))
         self.dealer.hand.add_card(self.shoe.deal())
-        self.player.hands[0].add_card(self.shoe.deal())
+        self.player.hands[0].add_card(self.shoe.custom_deal("8", 8))
 
         hidden_card = self.shoe.deal()
         hidden_card.set_hidden(True)

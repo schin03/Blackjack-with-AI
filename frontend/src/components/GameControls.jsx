@@ -2,11 +2,19 @@ function GameControls({
     onHit,
     onStand,
     onDouble,
+    onSplit,
     disabled,
-    handState
+    activeHand
 }) {
     return (
         <div className = "controls">
+            <button
+                onClick = {onSplit}
+                disabled = {disabled || !activeHand?.can_split}
+            >
+                Split
+            </button>
+            
             <button
                 onClick = {onHit}
                 disabled = {disabled}
@@ -22,11 +30,10 @@ function GameControls({
             </button>
             <button
                 onClick = {onDouble}
-                disabled = {disabled || handState !== "active"}
+                disabled = {disabled || activeHand?.can_double}
             >
                 Double
             </button>
-
         </div>
     );
 }

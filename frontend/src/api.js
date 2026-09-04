@@ -78,6 +78,19 @@ export async function double(game_id) {
   return res.json();
 }
 
+// player split hand api call
+export async function split(game_id) {
+  const res = await fetch(`${API_URL}/games/${game_id}/split`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to perform split action in game session: " + game_id);
+  }
+
+  return res.json();
+}
+
 // player stand hand api call
 export async function stand(game_id) {
   const res = await fetch(`${API_URL}/games/${game_id}/stand`, {

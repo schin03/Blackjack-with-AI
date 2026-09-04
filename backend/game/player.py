@@ -47,7 +47,7 @@ class Player:
         if self.balance < og_hand.bet:
             raise InsufficientFundsError("Insufficient Funds")
 
-        self.balance -= self.og_hand.bet
+        self.balance -= og_hand.bet
 
         left = Hand(bet = og_hand.bet, is_split = True)
         right = Hand(bet = og_hand.bet, is_split = True)

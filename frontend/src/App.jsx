@@ -94,11 +94,28 @@ function App() {
         
         const state = await double(gameId);
 
-        setGameState(state)
+        setGameState(state);
     } catch (error) {
         setError(error.message);
     }
   }
+
+  // --------------------------
+  // Split
+  // --------------------------
+  async function handleSplit() {
+    try {
+        setError(null);
+
+        const state = await split(gameId);
+
+        setGameState(state);
+
+    } catch (e) {
+        setError(e.message);
+    }
+  }
+
 
   // --------------------------
   // Stand
@@ -124,6 +141,9 @@ function App() {
     setGameState(null);
     setError(null);
   }
+
+  const activeHandIndex = gameState?.player.current_hand ?? 0;
+  const activeHand = gameState?.player.hands[activeHandIndex];
 
   return (
     <div className = "app">
@@ -228,6 +248,8 @@ function App() {
                                         <Hand
                                             key = {index}
                                             hand = {hand}
+                                            index = {index}
+                                            isActive = {gameState.game_state === "active" && index === activeHandIndex}
                                         />
                                     )
                                 )}
@@ -238,8 +260,9 @@ function App() {
                             onHit = {handleHit}
                             onStand = {handleStand}
                             onDouble = {handleDouble}
+                            onSplit = {handleSplit}
                             disabled = {gameState.game_state !== "active"}
-                            handState = {gameState.player.hands[0].state}
+                            handState = {activeHand}
                         />
                         
                         {/* Deal another hand */}
