@@ -6,6 +6,7 @@ class Player:
     def __init__(self, bal):
         self.hands = []
         self.balance = bal
+        self.current_bet = 0
         self.insurance = False
 
     def blackjack_check(self):

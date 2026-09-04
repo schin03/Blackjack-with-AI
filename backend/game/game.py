@@ -27,7 +27,8 @@ class Game:
 
         if bet > self.player.balance:
             raise InsufficientFundsError("Insufficient Funds")
-        
+
+        self.player.current_bet = bet
         self.game_state = GameState.ACTIVE
 
         self.player.add_hand(Hand(bet))
@@ -132,7 +133,7 @@ class Game:
                 self.player.hands[self.current_hand].add_card(self.shoe.deal())
                 self.game_state = GameState.ACTIVE
             else:
-                self.dealer_action(False)
+                self.dealer_action()
 
     def finish_current_hand(self, state):
         self.player.hands[self.current_hand].state = state
@@ -163,7 +164,7 @@ class Game:
                     self.game_state = GameState.PLAYER_DOUBLE_PUSH
             else:
                 self.game_state = GameState.DEALER_WIN
-            self.payout_helper(self.player.hands[self.current_hand])
+            self.payout_helper(hand)
     
         
     def payout_helper(self, hand):
