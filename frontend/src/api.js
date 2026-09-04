@@ -1,5 +1,5 @@
-// const API_URL = "http://127.0.0.1:8000";
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = "http://127.0.0.1:8000";
+// const API_URL = import.meta.env.VITE_API_URL;
 
 // create_game api call
 export async function create_game(bal) {
@@ -73,6 +73,19 @@ export async function double(game_id) {
 
   if (!res.ok) {
     throw new Error("Failed to perform double action in game session: " + game_id);
+  }
+
+  return res.json();
+}
+
+// player split hand api call
+export async function split(game_id) {
+  const res = await fetch(`${API_URL}/games/${game_id}/split`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to perform split action in game session: " + game_id);
   }
 
   return res.json();

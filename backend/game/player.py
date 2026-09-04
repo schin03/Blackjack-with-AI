@@ -13,15 +13,15 @@ class Player:
         if self.hands[0].blackjack_check():
             self.hands[0].state = HandState.BLACKJACK
 
-    def choose_bet(self, bet_amount):
-        if bet_amount > self.balance:
-            raise InsufficientFundsError("Insufficient Funds")
-        else:
-            self.current_bet = bet_amount
-            self.balance -= bet_amount
-
     def add_hand(self, hand):
         self.hands.append(hand)
+
+    def choose_bet(self, bet):
+        if bet > self.balance:
+            raise InsufficientFundsError("Insufficient Funds")
+
+        self.current_bet = bet
+        self.balance -= bet
 
     def hit(self, hand_index, shoe):
         card = shoe.deal()
@@ -34,33 +34,43 @@ class Player:
             curr_hand.state = HandState.BUST
     
     def double(self, hand_index, shoe):
-        if self.balance - self.current_bet < 0:
+        hand = self.hands[hand_index]
+
+        if self.balance - hand.bet < 0:
             raise InsufficientFundsError("Insufficient Funds")
-        self.balance -= self.current_bet
+        if len(hand.cards) != 2 or hand.state != HandState.ACTIVE:
+            raise InvalidHandError("Invalid hand to double")
+
+        self.balance -= hand.bet
+        hand.bet *= 2
+    
         self.hit(hand_index, shoe)
     
     def split(self, hand_index):
-        split_hand = self.hands[hand_index]
-        if split_hand.split_check() == False:
+        og_hand = self.hands[hand_index]
+
+        if not og_hand.can_split():
             raise InvalidHandError("Invalid hand to split")
-        if self.balance - self.current_bet < 0:
+        if self.balance < og_hand.bet:
             raise InsufficientFundsError("Insufficient Funds")
-        self.balance -= self.current_bet
-        
 
-        split_1 = Hand()
-        split_2 = Hand()
-        split_1.add_card(split_hand.cards[0])
-        split_2.add_card(split_hand.cards[1])
+        self.balance -= og_hand.bet
 
-        self.hands[hand_index] = split_1
-        self.hands.insert(hand_index + 1, split_2)
+        left = Hand(bet = og_hand.bet, is_split = True)
+        right = Hand(bet = og_hand.bet, is_split = True)
+
+        left.add_card(og_hand.cards[0])
+        right.add_card(og_hand.cards[1])
+
+        self.hands[hand_index] = left
+        self.hands.insert(hand_index + 1, right)
     
     def insurance_choice(self, choice):
         self.insurance = choice
+        hand = self.hands[0]
         # if insurance is taken, check for valid funding and deduct insurance unit from bal
         if choice == True:
-            insurance_size = self.current_bet/2
+            insurance_size = hand.bet/2
             if self.balance - insurance_size < 0:
                 raise InsufficientFundsError("Insufficient Funds")
             self.balance -= insurance_size

@@ -5,6 +5,7 @@ import {
     deal,
     insurance,
     hit,
+    split,
     double,
     stand
 } from "./api";
@@ -94,11 +95,28 @@ function App() {
         
         const state = await double(gameId);
 
-        setGameState(state)
+        setGameState(state);
     } catch (error) {
         setError(error.message);
     }
   }
+
+  // --------------------------
+  // Split
+  // --------------------------
+  async function handleSplit() {
+    try {
+        setError(null);
+
+        const state = await split(gameId);
+
+        setGameState(state);
+
+    } catch (e) {
+        setError(e.message);
+    }
+  }
+
 
   // --------------------------
   // Stand
@@ -124,6 +142,9 @@ function App() {
     setGameState(null);
     setError(null);
   }
+
+  const activeHandIndex = gameState?.player.current_hand ?? 0;
+  const activeHand = gameState?.player.hands[activeHandIndex];
 
   return (
     <div className = "app">
@@ -223,14 +244,18 @@ function App() {
                         
                         <section className = "player">
                                 <h2>Player</h2>
+                                <div className = "player-hands">
                                 {gameState.player.hands.map(
                                     (hand, index) => (
                                         <Hand
                                             key = {index}
                                             hand = {hand}
+                                            index = {index}
+                                            isActive = {gameState.game_state === "active" && index === activeHandIndex}
                                         />
                                     )
                                 )}
+                                </div>
                         </section>
                         
                         {/* Hit / Stand */}
@@ -238,8 +263,9 @@ function App() {
                             onHit = {handleHit}
                             onStand = {handleStand}
                             onDouble = {handleDouble}
+                            onSplit = {handleSplit}
                             disabled = {gameState.game_state !== "active"}
-                            handState = {gameState.player.hands[0].state}
+                            activeHand = {activeHand}
                         />
                         
                         {/* Deal another hand */}
