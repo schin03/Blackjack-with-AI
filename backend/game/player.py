@@ -16,6 +16,13 @@ class Player:
     def add_hand(self, hand):
         self.hands.append(hand)
 
+    def choose_bet(self, bet):
+        if bet > self.balance:
+            raise InsufficientFundsError("Insufficient Funds")
+
+        self.current_bet = bet
+        self.balance -= bet
+
     def hit(self, hand_index, shoe):
         card = shoe.deal()
         curr_hand = self.hands[hand_index]

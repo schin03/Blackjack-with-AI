@@ -25,10 +25,8 @@ class Game:
         
         self.current_hand = 0
 
-        if bet > self.player.balance:
-            raise InsufficientFundsError("Insufficient Funds")
-
-        self.player.current_bet = bet
+        self.player.choose_bet(bet)
+        
         self.game_state = GameState.ACTIVE
 
         self.player.add_hand(Hand(bet))
