@@ -110,19 +110,28 @@ class Game:
             raise IncorrectState("current state is not set as ACTIVE")
         
         self.player.double(self.current_hand, self.shoe)
-        self.game_state = GameState.PLAYER_DOUBLE
-        
-        if self.player.hands[self.current_hand].state != HandState.BUST:
-            self.finish_current_hand(HandState.DOUBLE)
+
+        final_state = (
+            HandState.BUST 
+            if self.player.hands[self.current_hand].state == HandState.BUST
+            else HandState.DOUBLE
+        )
+
+        self.finish_current_hand(final_state)
 
     def split(self):
+        if self.game_state != GameState.ACTIVE:
+            raise IncorrectState("current state is not set as ACTIVE") 
+
         self.player.split(self.current_hand)
         
         # deal the second card to the first split hand
         self.player.hands[self.current_hand].add_card(self.shoe.deal())
     
     def stand(self):
-        self.player.hands[self.current_hand].state = HandState.STAND
+        if self.game_state != GameState.ACTIVE:
+            raise IncorrectState("current state is not set as ACTIVE")
+        
         self.finish_current_hand(HandState.STAND)
 
     def next_hand(self):

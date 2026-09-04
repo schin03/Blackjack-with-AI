@@ -1,7 +1,10 @@
+from operator import index
+
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from backend.game import hand
 from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from game.game_manager import GameManager
 from game.states.hand_state import HandState
@@ -32,7 +35,6 @@ def create_game(balance: int):
     game = game_manager.create_game(balance)
     return {
         "game_id": game.game_id
-        
     }
 
 @app.post("/games/{game_id}/deal")
@@ -40,34 +42,16 @@ def deal(game_id: str, request: DealHand):
     try:
         game = game_manager.get_game(game_id)
         game.deal(request.bet)
-        
-        return {
-            "game_id": game_id,
-            "player": {
-                "hands": [{
-                    "cards": hand.cards,
-                    "value": hand.get_value(),
-                    "state": hand.state,
-                    "can_double" : hand.state == HandState.ACTIVE
-                }
-                for hand in game.player.hands
-                ],
-                "current_bal": game.player.balance,
-                "current_bet": game.player.current_bet
-            },
-            "dealer": {
-                "cards": game.dealer.hand.cards,
-                "value": game.dealer.hand.get_value(),
-                "state": game.dealer.hand.state
-            },
-            "game_state": game.game_state
-        }
     
     except InsufficientFundsError as e:
         raise HTTPException(
             status_code = 400,
             detail=str(e)
         )
+
+    return game_snapshot(game)
+
+
 @app.post("/games/{game_id}/insurance")
 def insurance(game_id: str, req: InsuranceChoice):
     game = game_manager.get_game(game_id)
@@ -78,27 +62,7 @@ def insurance(game_id: str, req: InsuranceChoice):
             status_code = 400,
             detail = str(e)
         )
-    return {
-        "game_id": game_id,
-        "player": {
-            "hands": [{
-                "cards": hand.cards,
-                "value": hand.get_value(),
-                "state": hand.state,
-                "can_double" : hand.state == HandState.ACTIVE
-            }
-            for hand in game.player.hands
-            ],
-            "current_bal": game.player.balance,
-            "current_bet": game.player.current_bet
-        },
-        "dealer": {
-            "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value(),
-            "state": game.dealer.hand.state
-        },
-        "game_state": game.game_state
-    }
+    return game_snapshot(game)
 
 @app.post("/games/{game_id}/hit")
 def hit(game_id: str):
@@ -112,27 +76,7 @@ def hit(game_id: str):
             detail = str(e)
         ) 
     
-    return {
-        "game_id": game_id,
-        "player": {
-            "hands": [{
-                "cards": hand.cards,
-                "value": hand.get_value(),
-                "state": hand.state,
-                "can_double" : hand.state == HandState.ACTIVE
-            }
-            for hand in game.player.hands
-            ],
-            "current_bal": game.player.balance,
-            "current_bet": game.player.current_bet
-        },
-        "dealer": {
-            "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value(),
-            "state": game.dealer.hand.state
-        },
-        "game_state": game.game_state
-    }
+    return game_snapshot(game)
 
 @app.post("/games/{game_id}/double")
 def double(game_id: str):
@@ -145,27 +89,7 @@ def double(game_id: str):
             detail=str(e)
         )
          
-    return {
-        "game_id": game_id,
-        "player": {
-            "hands": [{
-                "cards": hand.cards,
-                "value": hand.get_value(),
-                "state": hand.state,
-                "can_double" : hand.state == HandState.ACTIVE
-            }
-            for hand in game.player.hands
-            ],
-            "current_bal": game.player.balance,
-            "current_bet": game.player.current_bet
-        },
-        "dealer": {
-            "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value(),
-            "state": game.dealer.hand.state
-        },
-        "game_state": game.game_state
-    }
+    return game_snapshot(game)
 
 @app.post("/games/{game_id}/split")
 def split(game_id: str):
@@ -182,52 +106,44 @@ def split(game_id: str):
             status_code = 400,
             detail = str(e)
         )
-    return {
-        "game_id": game_id,
-        "player": {
-            "hands": [{
-                "cards": hand.cards,
-                "value": hand.get_value(),
-                "state": hand.state,
-                "can_double" : hand.state == HandState.ACTIVE
-            }
-            for hand in game.player.hands
-            ],
-            "current_bal": game.player.balance,
-            "current_bet": game.player.current_bet
-        },
-        "dealer": {
-            "cards": game.dealer.hand.cards,
-            "value": game.dealer.hand.get_value(),
-            "state": game.dealer.hand.state
-        },
-        "game_state": game.game_state
-    }
+    return game_snapshot(game)
 
 @app.post("/games/{game_id}/stand")
 def stand(game_id: str):
     game = game_manager.get_game(game_id)
     game.stand()
     
+    return game_snapshot(game)
+
+def game_snapshot(game):
+    active_index = game.current_hand
     return {
-        "game_id": game_id,
+        "game_id": game.game_id,
         "player": {
-            "hands": [{
+            "hands" : [{
                 "cards": hand.cards,
                 "value": hand.get_value(),
                 "state": hand.state,
-                "can_double" : hand.state == HandState.ACTIVE
-            }
-            for hand in game.player.hands
-            ],
+                "can_double": (
+                    index == active_index
+                    and hand.state == HandState.ACTIVE
+                    and len(hand.cards) == 2
+                    and game.player.balance >= hand.bet
+                ),
+                "can_split": (
+                    index == active_index
+                    and hand.can_split()
+                    and game.player.balance >= hand.bet
+                ),
+            } for index, hand in enumerate(game.player.hands)],
             "current_bal": game.player.balance,
-            "current_bet": game.player.current_bet
+            "current_bet": game.player.current_bet,
+            "current_hand" : active_index
         },
         "dealer": {
             "cards": game.dealer.hand.cards,
             "value": game.dealer.hand.get_value(),
-            "state": game.dealer.hand.state
+            "state": game.dealer.hand.state,
         },
         "game_state": game.game_state
     }
-

@@ -34,7 +34,7 @@ class Player:
         if len(hand) != 2:
             raise InvalidHandError("Invalid hand to double")
 
-        self.player.balance -= hand.bet
+        self.balance -= hand.bet
         hand.bet *= 2
     
         self.hit(hand_index, shoe)
