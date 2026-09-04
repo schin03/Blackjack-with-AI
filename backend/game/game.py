@@ -30,9 +30,9 @@ class Game:
         self.game_state = GameState.ACTIVE
 
         self.player.add_hand(Hand(bet))
-        self.player.hands[0].add_card(self.shoe.custom_deal("8", 8))
+        self.player.hands[0].add_card(self.shoe.deal())
         self.dealer.hand.add_card(self.shoe.deal())
-        self.player.hands[0].add_card(self.shoe.custom_deal("8", 8))
+        self.player.hands[0].add_card(self.shoe.deal())
 
         hidden_card = self.shoe.deal()
         hidden_card.set_hidden(True)
@@ -155,6 +155,8 @@ class Game:
         dealer_bust = self.dealer.hand.bust_check()
         dealer_value = self.dealer.hand.get_value()
 
+        self.game_state = GameState.DEALER_WIN
+
         for hand in self.player.hands:
             hand_value = hand.get_value()
             if hand.state == HandState.BUST:
@@ -169,8 +171,7 @@ class Game:
                     self.game_state = GameState.PLAYER_DOUBLE_WIN
                 elif dealer_value == hand_value:
                     self.game_state = GameState.PLAYER_DOUBLE_PUSH
-            else:
-                self.game_state = GameState.DEALER_WIN
+            
             self.payout_helper(hand)
     
         

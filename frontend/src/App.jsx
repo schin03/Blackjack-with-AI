@@ -244,6 +244,7 @@ function App() {
                         
                         <section className = "player">
                                 <h2>Player</h2>
+                                <div className = "player-hands">
                                 {gameState.player.hands.map(
                                     (hand, index) => (
                                         <Hand
@@ -254,6 +255,7 @@ function App() {
                                         />
                                     )
                                 )}
+                                </div>
                         </section>
                         
                         {/* Hit / Stand */}

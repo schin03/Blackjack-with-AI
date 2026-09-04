@@ -146,28 +146,57 @@ button:disabled {
   margin-bottom: 30px;
 }
 
-.player > .hand {
+.player-hands {
+  display: flex;
+  flex-direction: row-reverse; /* hand 0 is on the right */
+  justify-content: center;
+  align-items: flex-start;
+  gap: 22px;
+  overflow-x: auto;
+  padding: 12px 8px 20px;
+}
+
+.player-hands > .hand {
+  flex: 0 0 auto;
+  width: fit-content;
+  margin: 0;
   opacity: 0.62;
-  transform: scale(0.9);
+  transform: scale(0.94);
+  transform-origin: center top;
   transition: opacity 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
-.player > .active-hand {
+.player-hands > .active-hand {
   opacity: 1;
-  transform: scale(1.08);
-  position: relative;
-  z-index: 1;
-  padding: 14px;
+  transform: scale(1);
+  padding: 12px;
   border: 2px solid #f4c542;
   border-radius: 12px;
   background: rgba(0, 0, 0, 0.18);
   box-shadow: 0 0 24px rgba(244, 197, 66, 0.55);
 }
 
+.player-hands .cards {
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.player-hands .card {
+  width: 54px;
+  height: 78px;
+  font-size: 19px;
+}
+
 .hand-label {
-  margin: 0 0 10px;
+  margin: 0 0 8px;
   font-weight: 700;
   color: #f4c542;
+}
+
+.hand p {
+  margin: 8px 0 0;
+  font-size: 16px;
+  font-weight: bold;
 }
 /* ============================= */
 /* Cards */
