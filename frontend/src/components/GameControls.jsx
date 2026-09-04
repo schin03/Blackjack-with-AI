@@ -30,7 +30,7 @@ function GameControls({
             </button>
             <button
                 onClick = {onDouble}
-                disabled = {disabled || activeHand?.can_double}
+                disabled = {disabled || !activeHand?.can_double}
             >
                 Double
             </button>

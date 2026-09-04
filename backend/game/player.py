@@ -38,7 +38,7 @@ class Player:
 
         if self.balance - hand.bet < 0:
             raise InsufficientFundsError("Insufficient Funds")
-        if len(hand) != 2:
+        if len(hand.cards) != 2 or hand.state != HandState.ACTIVE:
             raise InvalidHandError("Invalid hand to double")
 
         self.balance -= hand.bet
