@@ -4,10 +4,12 @@ from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from game import hand
+
 from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from game.game_manager import GameManager
 from game.states.hand_state import HandState
+
+from gemini.gemini_client import get_blackjack_state
 
 app = FastAPI()
 app.add_middleware(
@@ -25,6 +27,12 @@ class DealHand(BaseModel):
 
 class InsuranceChoice(BaseModel):
     choice: bool
+
+class SnapShot(BaseModel):
+    player_hand: list
+    dealer_card: int
+    can_double: bool
+    can_split: bool
 
 @app.get("/")
 def root():
@@ -114,6 +122,14 @@ def stand(game_id: str):
     game.stand()
     
     return game_snapshot(game)
+
+@app.post("/games/{game_id}/ai_move")
+def ai_move(game_id: str):
+    game = game_manager.get_game(game_id)
+    snapshot = game_snapshot(game)
+    move = get_blackjack_state(snapshot.dict())
+    return {"move": move}
+
 
 def game_snapshot(game):
     active_index = game.current_hand

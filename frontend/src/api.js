@@ -103,3 +103,15 @@ export async function stand(game_id) {
 
   return res.json();
 }
+
+export async function ai_move(game_id) {
+  const res = await fetch(`${API_URL}/games/${game_id}/stand`, {
+    method: "POST",
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to retrieve ai's recommended move")
+  }
+
+  return res.json();
+}
