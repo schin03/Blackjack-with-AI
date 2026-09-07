@@ -1,5 +1,7 @@
-import google.generativeai as genai
-import os 
+import json
+import os
+
+import google.generativeai as genai 
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -7,7 +9,7 @@ load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key = API_KEY)
 
-model = genai.GenerativeModel("gemini-2.5-flash")
+model = genai.GenerativeModel("gemini-2.5-flash") if API_KEY else None
 
 """
     Sends the game snapshot to Gemini and returns the recommended move.
@@ -19,20 +21,42 @@ model = genai.GenerativeModel("gemini-2.5-flash")
         "can_split": bool
     }
 """
-def get_blackjack_state(game_snapshot: dict) -> str:
+def get_blackjack_state(game_snapshot: dict) -> dict:
+    if model is None:
+        raise RuntimeError("GEMINI_API_KEY is not configured on the server")
+
     prompt = f"""
-    You are given a blackjack hand where player_hand contains their current hand's value and
-    dealer_card is the value of the up facing card. You are also given booleans as to if the hand
-    can be doubled or split, to maximize the player's winnings. Given the following game state, 
-    return ONLY the recommended move:
-    - "hit"
-    - "stand"
-    - "double"
-    - "split"
+    You are a blackjack basic-strategy assistant. Recommend one legal move
+    for the given state.
+
+    Use the dealer's visible up-card only. Only choose a move from
+    allowed_moves.
+
+    Return valid JSON only in this exact shape:
+    {{"move":"hit|stand|double|split","explanation":"One or two short sentences."}}
 
     Game snapshot:
-    {game_snapshot}
+    {json.dumps(game_snapshot)}
     """
 
     response = model.generate_content(prompt)
-    return response.text.strip().lower()
+    text = (
+        response.text.strip()
+        .removeprefix("```json")
+        .removeprefix("```")
+        .removeprefix("```")
+        .strip()
+    )
+
+    advice = json.loads(text)
+    move = str(advice.get("move","")).lower()
+
+    if move not in game_snapshot["allowed_moves"]:
+        raise ValueError("AI returned illegal move for current hand")
+
+    explanation = str(advice.get("explanation", "").strip())
+
+    if not explanation:
+        raise ValueError("AI did not include explananation")
+    
+    return {"move": move, "explanation": explanation}

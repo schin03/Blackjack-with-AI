@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from game.game_manager import GameManager
 from game.states.hand_state import HandState
+from game.states.game_state import GameState
 
 from gemini.gemini_client import get_blackjack_state
 
@@ -126,9 +127,24 @@ def stand(game_id: str):
 @app.post("/games/{game_id}/ai_move")
 def ai_move(game_id: str):
     game = game_manager.get_game(game_id)
-    snapshot = game_snapshot(game)
-    move = get_blackjack_state(snapshot.dict())
-    return {"move": move}
+
+    if game.game_state != GameState.ACTIVE:
+        raise HTTPException(
+            status_code = 400,
+            detail = "Advice only available for active hands"
+        )
+    
+    
+
+    snapshot = ai_snapshot(game)
+
+    try:
+        return get_blackjack_state(snapshot)
+    except Exception as e:
+        raise HTTPException(
+            status_code = 503,
+            detail = f"Unable to get AI advice: {e}"
+        )
 
 
 def game_snapshot(game):
@@ -163,3 +179,44 @@ def game_snapshot(game):
         },
         "game_state": game.game_state
     }
+
+def ai_snapshot(game):
+    snapshot = game_snapshot(game)
+    active_index = snapshot["player"]["current_hand"]
+
+    hands = []
+    for hand in snapshot["player"]["hands"]:
+        hands.append({
+            "cards": [card.get_card_val() for card in hand["cards"]],
+            "value": hand["value"],
+            "state": hand["state"].value,
+            "can_double": hand["can_double"],
+            "can_split": hand["can_split"],
+        })
+
+        active_hand = hands[active_index]
+
+        allowed_moves = ["hit", "stand"]
+
+        if active_hand["can_double"]:
+            allowed_moves.append("double")
+
+        if active_hand["can_split"]:
+            allowed_moves.append("split")
+
+        return {
+            "player": {
+                "hands": hands,
+                "current_hand": active_index,
+                "current_balance": snapshot["player"]["current_bal"],
+            },
+            "dealer": {
+                "cards": [
+                    card.get_card_val()
+                    for card in snapshot["dealer"]["cards"]
+                ],
+                "up_card": snapshot["dealer"]["cards"][0].get_card_val(),
+            },
+            "allowed_moves": allowed_moves
+        }
+
