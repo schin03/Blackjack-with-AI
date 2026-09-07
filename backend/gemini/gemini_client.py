@@ -42,13 +42,12 @@ def get_blackjack_state(game_snapshot: dict) -> dict:
     response = model.generate_content(
         prompt,
         generation_config = genai.GenerationConfig(
-            temperature = 0.2,
+            temperature = 0,
+            max_output_tokens=80,
             response_mime_type = "application/json",
         ),
     )
     text = response.text.strip()
-    print(f"Raw Gemini res: {text}")
-
     advice = json.loads(text)
     move = str(advice.get("move","")).lower()
 

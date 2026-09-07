@@ -37,6 +37,7 @@ function App() {
   // Start new session
   // --------------------------
   async function handleStartSession() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -53,6 +54,7 @@ function App() {
   // Deal new hand
   // --------------------------
   async function handleDeal() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -81,6 +83,7 @@ function App() {
   // Hit
   // --------------------------
   async function handleHit() {
+    clearAdvice()
     try {
         setError(null);
         
@@ -96,6 +99,7 @@ function App() {
   // Double
   // --------------------------
   async function handleDouble() {
+    clearAdvice()
     try {
         setError(null);
         
@@ -111,6 +115,7 @@ function App() {
   // Split
   // --------------------------
   async function handleSplit() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -128,6 +133,7 @@ function App() {
   // Stand
   // --------------------------
   async function handleStand() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -166,6 +172,14 @@ function App() {
     setGameId(null);
     setGameState(null);
     setError(null);
+  }
+
+  // --------------------------
+  // Return to start session 
+  // --------------------------
+  function clearAdvice() {
+    setAdvice(null);
+    setAdviceError(null);
   }
 
   const activeHandIndex = gameState?.player.current_hand ?? 0;
