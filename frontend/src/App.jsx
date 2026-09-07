@@ -7,7 +7,8 @@ import {
     hit,
     split,
     double,
-    stand
+    stand,
+    ai_move
 } from "./api";
 
 import Card from "./components/Card";
@@ -15,6 +16,7 @@ import Hand from "./components/Hand";
 import GameControls from "./components/GameControls";
 import GameInfo from "./components/GameInfo";
 import InsurancePopup from './components/InsurancePopup';
+import BlackjackAssistant from "./components/BlackjackAssistant";
 
 import './App.css'
 
@@ -27,10 +29,15 @@ function App() {
 
   const [error, setError] = useState(null);
 
+  const [advice, setAdvice] = useState(null);
+  const [adviceError, setAdviceError] = useState(null);
+  const [isAdviceLoading, setIsAdviceLoading] = useState(false);
+
   // --------------------------
   // Start new session
   // --------------------------
   async function handleStartSession() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -47,6 +54,7 @@ function App() {
   // Deal new hand
   // --------------------------
   async function handleDeal() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -75,6 +83,7 @@ function App() {
   // Hit
   // --------------------------
   async function handleHit() {
+    clearAdvice()
     try {
         setError(null);
         
@@ -90,6 +99,7 @@ function App() {
   // Double
   // --------------------------
   async function handleDouble() {
+    clearAdvice()
     try {
         setError(null);
         
@@ -105,6 +115,7 @@ function App() {
   // Split
   // --------------------------
   async function handleSplit() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -122,6 +133,7 @@ function App() {
   // Stand
   // --------------------------
   async function handleStand() {
+    clearAdvice()
     try {
         setError(null);
 
@@ -135,12 +147,39 @@ function App() {
   }
 
   // --------------------------
+  // Help Hand 
+  // --------------------------
+
+  async function handleHelpHand() {
+    if (!gameId || gameState?.game_state !== "active") return;
+
+    try {
+        setAdviceError(null)
+        setIsAdviceLoading(true);
+        setAdvice(await ai_move(gameId));
+    } catch (error) {
+        setAdvice(null)
+        setAdviceError(error.message);
+    } finally {
+        setIsAdviceLoading(false);
+    }
+  }
+
+  // --------------------------
   // Return to start session 
   // --------------------------
   function handleHome() {
     setGameId(null);
     setGameState(null);
     setError(null);
+  }
+
+  // --------------------------
+  // Return to start session 
+  // --------------------------
+  function clearAdvice() {
+    setAdvice(null);
+    setAdviceError(null);
   }
 
   const activeHandIndex = gameState?.player.current_hand ?? 0;
@@ -214,7 +253,7 @@ function App() {
                 )}
 
 
-
+                
 
                 {/* -------------------------- */}
                 {/* ACTIVE / COMPLETED GAME */}
@@ -288,6 +327,7 @@ function App() {
                             </div>
                         )}
                     </>
+                    
                 )}
                 {gameState?.game_state === "insurance" && (
                     <InsurancePopup
@@ -295,6 +335,13 @@ function App() {
                     />
                 )}
 
+                <BlackjackAssistant
+                    canHelp = {Boolean(gameId && gameState?.game_state === "active")}
+                    onHelp = {handleHelpHand}
+                    advice = {advice}
+                    error = {adviceError}
+                    isLoading = {isAdviceLoading}
+                />
             </div>
         )}
     </div>

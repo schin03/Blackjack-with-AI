@@ -337,3 +337,104 @@ button:disabled {
 .insurance-buttons button {
   min-width: 100px;
 }
+
+
+/* ============================= */
+/* Help Button */
+/* ============================= */
+.blackjack-assistant {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 1100;
+  text-align: left;
+}
+
+.assistant-fab {
+  float: right;
+  padding: 13px 18px;
+  border: 1px solid #f4c542;
+  border-radius: 999px;
+  background: #151515;
+  color: white;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.assistant-panel {
+  width: min(360px, calc(100vw - 32px));
+  margin-bottom: 12px;
+  padding: 20px;
+  border: 1px solid rgba(244, 197, 66, 0.55);
+  border-radius: 16px;
+  background: #202020;
+  color: white;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.42);
+  box-sizing: border-box;
+}
+
+.assistant-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.assistant-header h2 {
+  margin: 2px 0 0;
+  color: white;
+}
+
+.assistant-close {
+  padding: 0 6px;
+  background: transparent;
+  color: white;
+  font-size: 27px;
+}
+
+.assistant-kicker {
+  margin: 0;
+  color: #f4c542;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.assistant-copy,
+.assistant-status,
+.assistant-error {
+  margin: 14px 0;
+  line-height: 1.4;
+}
+
+.assistant-status {
+  color: #b9b9b9;
+  font-size: 13px;
+}
+
+.assistant-error {
+  color: #ff9b9b;
+}
+
+.help-hand-button {
+  width: 100%;
+  background: #f4c542;
+  color: #1a1a1a;
+}
+
+.assistant-answer {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #176b3a;
+}
+
+.assistant-answer p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.assistant-move {
+  margin-bottom: 6px !important;
+  color: #fbe68b;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: capitalize;
+}

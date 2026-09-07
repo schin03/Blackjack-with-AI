@@ -1,13 +1,18 @@
+import logging
+
 from operator import index
 
 from fastapi import FastAPI
 from fastapi import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from game import hand
+
 from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from game.game_manager import GameManager
 from game.states.hand_state import HandState
+from game.states.game_state import GameState
+
+from gemini.gemini_client import get_blackjack_state
 
 app = FastAPI()
 app.add_middleware(
@@ -19,12 +24,20 @@ app.add_middleware(
     allow_headers = ["*"]
 )
 
+logger = logging.getLogger("uvicorn.error")
+
 game_manager = GameManager()
 class DealHand(BaseModel):
     bet: float
 
 class InsuranceChoice(BaseModel):
     choice: bool
+
+class SnapShot(BaseModel):
+    player_hand: list
+    dealer_card: int
+    can_double: bool
+    can_split: bool
 
 @app.get("/")
 def root():
@@ -115,6 +128,32 @@ def stand(game_id: str):
     
     return game_snapshot(game)
 
+@app.post("/games/{game_id}/ai_move")
+def ai_move(game_id: str):
+    game = game_manager.get_game(game_id)
+
+    if game.game_state != GameState.ACTIVE:
+        raise HTTPException(
+            status_code = 400,
+            detail = "Advice only available for active hands"
+        )
+    
+    snapshot = ai_snapshot(game)
+
+    logger.info("Sending AI snapshot : %s", snapshot)
+
+    try:
+        advice = get_blackjack_state(snapshot)
+        logger.info("Gemini returned: %s", advice)
+        return advice
+    except Exception as e:
+        logger.exception("Gemini advice request failed")
+        raise HTTPException(
+            status_code = 503,
+            detail = "Unable to get AI advice. Check backend terminal"
+        )
+
+
 def game_snapshot(game):
     active_index = game.current_hand
     return {
@@ -147,3 +186,44 @@ def game_snapshot(game):
         },
         "game_state": game.game_state
     }
+
+def ai_snapshot(game):
+    snapshot = game_snapshot(game)
+    active_index = snapshot["player"]["current_hand"]
+
+    hands = []
+    for hand in snapshot["player"]["hands"]:
+        hands.append({
+            "cards": [card.get_card_val() for card in hand["cards"]],
+            "value": hand["value"],
+            "state": hand["state"].value,
+            "can_double": hand["can_double"],
+            "can_split": hand["can_split"],
+        })
+
+        active_hand = hands[active_index]
+
+        allowed_moves = ["hit", "stand"]
+
+        if active_hand["can_double"]:
+            allowed_moves.append("double")
+
+        if active_hand["can_split"]:
+            allowed_moves.append("split")
+
+        return {
+            "player": {
+                "hands": hands,
+                "current_hand": active_index,
+                "current_balance": snapshot["player"]["current_bal"],
+            },
+            "dealer": {
+                "cards": [
+                    card.get_card_val()
+                    for card in snapshot["dealer"]["cards"]
+                ],
+                "up_card": snapshot["dealer"]["cards"][0].get_card_val(),
+            },
+            "allowed_moves": allowed_moves
+        }
+
