@@ -7,7 +7,8 @@ import {
     hit,
     split,
     double,
-    stand
+    stand,
+    ai_move
 } from "./api";
 
 import Card from "./components/Card";
@@ -15,6 +16,7 @@ import Hand from "./components/Hand";
 import GameControls from "./components/GameControls";
 import GameInfo from "./components/GameInfo";
 import InsurancePopup from './components/InsurancePopup';
+import BlackjackAssistant from "./components/BlackjackAssistant";
 
 import './App.css'
 
@@ -26,6 +28,10 @@ function App() {
   const [bet, setBet] = useState(100);
 
   const [error, setError] = useState(null);
+
+  const [advice, setAdvice] = useState(null);
+  const [adviceError, setAdviceError] = useState(null);
+  const [isAdviceLoading, setIsAdviceLoading] = useState(false);
 
   // --------------------------
   // Start new session
@@ -135,6 +141,25 @@ function App() {
   }
 
   // --------------------------
+  // Help Hand 
+  // --------------------------
+
+  async function handleHelpHand() {
+    if (!gameId || gameState?.game_state !== "active") return;
+
+    try {
+        setAdviceError(null)
+        setIsAdviceLoading(true);
+        setAdvice(await ai_move(game_id));
+    } catch (error) {
+        setAdvice(null)
+        setAdviceError(error.message);
+    } finally {
+        setIsAdviceLoading(false);
+    }
+  }
+
+  // --------------------------
   // Return to start session 
   // --------------------------
   function handleHome() {
@@ -214,7 +239,7 @@ function App() {
                 )}
 
 
-
+                
 
                 {/* -------------------------- */}
                 {/* ACTIVE / COMPLETED GAME */}
@@ -288,6 +313,7 @@ function App() {
                             </div>
                         )}
                     </>
+                    
                 )}
                 {gameState?.game_state === "insurance" && (
                     <InsurancePopup
@@ -295,6 +321,13 @@ function App() {
                     />
                 )}
 
+                <BlackjackAssistant
+                    canHelp = {Boolean(gameId && gameState?.game_state === "active")}
+                    onHelp = {handleHelpHand}
+                    advice = {advice}
+                    error = {adviceError}
+                    isLoading = {isAdviceLoading}
+                />
             </div>
         )}
     </div>
