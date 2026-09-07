@@ -43,7 +43,7 @@ def get_blackjack_state(game_snapshot: dict) -> dict:
         prompt,
         generation_config = genai.GenerationConfig(
             temperature = 0,
-            max_output_tokens=80,
+            max_output_tokens=200,
             response_mime_type = "application/json",
         ),
     )
