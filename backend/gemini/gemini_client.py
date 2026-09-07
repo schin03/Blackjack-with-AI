@@ -9,7 +9,7 @@ load_dotenv()
 API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key = API_KEY)
 
-model = genai.GenerativeModel("gemini-2.5-flash") if API_KEY else None
+model = genai.GenerativeModel("gemini-3.6-flash") if API_KEY else None
 
 """
     Sends the game snapshot to Gemini and returns the recommended move.
@@ -39,14 +39,15 @@ def get_blackjack_state(game_snapshot: dict) -> dict:
     {json.dumps(game_snapshot)}
     """
 
-    response = model.generate_content(prompt)
-    text = (
-        response.text.strip()
-        .removeprefix("```json")
-        .removeprefix("```")
-        .removeprefix("```")
-        .strip()
+    response = model.generate_content(
+        prompt,
+        generation_config = genai.GenerationConfig(
+            temperature = 0.2,
+            response_mime_type = "application/json",
+        ),
     )
+    text = response.text.strip()
+    print(f"Raw Gemini res: {text}")
 
     advice = json.loads(text)
     move = str(advice.get("move","")).lower()

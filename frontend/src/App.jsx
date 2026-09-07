@@ -150,7 +150,7 @@ function App() {
     try {
         setAdviceError(null)
         setIsAdviceLoading(true);
-        setAdvice(await ai_move(game_id));
+        setAdvice(await ai_move(gameId));
     } catch (error) {
         setAdvice(null)
         setAdviceError(error.message);

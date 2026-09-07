@@ -1,3 +1,5 @@
+import logging
+
 from operator import index
 
 from fastapi import FastAPI
@@ -21,6 +23,8 @@ app.add_middleware(
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
+
+logger = logging.getLogger("uvicorn.error")
 
 game_manager = GameManager()
 class DealHand(BaseModel):
@@ -134,16 +138,19 @@ def ai_move(game_id: str):
             detail = "Advice only available for active hands"
         )
     
-    
-
     snapshot = ai_snapshot(game)
 
+    logger.info("Sending AI snapshot : %s", snapshot)
+
     try:
-        return get_blackjack_state(snapshot)
+        advice = get_blackjack_state(snapshot)
+        logger.info("Gemini returned: %s", advice)
+        return advice
     except Exception as e:
+        logger.exception("Gemini advice request failed")
         raise HTTPException(
             status_code = 503,
-            detail = f"Unable to get AI advice: {e}"
+            detail = "Unable to get AI advice. Check backend terminal"
         )
 
 

@@ -105,7 +105,7 @@ export async function stand(game_id) {
 }
 
 export async function ai_move(game_id) {
-  const res = await fetch(`${API_URL}/games/${game_id}/stand`, {
+  const res = await fetch(`${API_URL}/games/${game_id}/ai_move`, {
     method: "POST",
   });
 
