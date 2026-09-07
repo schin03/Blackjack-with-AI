@@ -1,15 +1,21 @@
 import json
 import os
+import time
 
-import google.generativeai as genai 
+from google import genai
+from google.genai import types
+from google.genai import errors
 from dotenv import load_dotenv
 
 load_dotenv()
 
 API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key = API_KEY)
 
-model = genai.GenerativeModel("gemini-3.6-flash") if API_KEY else None
+
+if not API_KEY:
+    raise RuntimeError("GEMINI_API_KEY is not configured")
+
+client = genai.Client(api_key = API_KEY)
 
 """
     Sends the game snapshot to Gemini and returns the recommended move.
@@ -22,9 +28,6 @@ model = genai.GenerativeModel("gemini-3.6-flash") if API_KEY else None
     }
 """
 def get_blackjack_state(game_snapshot: dict) -> dict:
-    if model is None:
-        raise RuntimeError("GEMINI_API_KEY is not configured on the server")
-
     prompt = f"""
     You are a blackjack basic-strategy assistant. Recommend one legal move
     for the given state.
@@ -39,14 +42,33 @@ def get_blackjack_state(game_snapshot: dict) -> dict:
     {json.dumps(game_snapshot)}
     """
 
-    response = model.generate_content(
-        prompt,
-        generation_config = genai.GenerationConfig(
-            temperature = 0,
-            max_output_tokens=200,
-            response_mime_type = "application/json",
-        ),
-    )
+    max_retries = 3
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-3.5-flash-lite",
+                contents = prompt,
+                config = types.GenerateContentConfig(
+                    max_output_tokens=100,
+                    thinking_config = types.ThinkingConfig(
+                        thinking_level = "minimal"
+                    ),
+                    response_mime_type = "application/json",
+                ),
+            )
+            break
+        except errors.ServerError as e:
+            if attempt == max_retries -1:
+                raise
+            wait_time = 2 ** attempt
+            print(
+                f"Gemini request failed "
+                f"(attempt {attempt + 1}/{max_retries}). "
+                f"Retrying in {wait_time}s..."
+            )
+            
+            time.sleep(wait_time)
     
     print("================== GEMINI RESPONSE ==================")
     print(response)
