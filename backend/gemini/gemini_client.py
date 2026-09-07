@@ -47,6 +47,11 @@ def get_blackjack_state(game_snapshot: dict) -> dict:
             response_mime_type = "application/json",
         ),
     )
+    
+    print("================== GEMINI RESPONSE ==================")
+    print(response)
+    print("=====================================================")
+    
     text = response.text.strip()
     advice = json.loads(text)
     move = str(advice.get("move","")).lower()
