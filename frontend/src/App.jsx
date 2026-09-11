@@ -202,6 +202,21 @@ function App() {
   // --------------------------
   // Return to start session 
   // --------------------------
+  function handleGuestPlay() {
+    setUser({
+        username: "Guest",
+        isGuest: true,
+    });
+    
+    setUsername("");
+    setPassword("");
+    setError(null);
+  }
+
+
+  // --------------------------
+  // Return to start session 
+  // --------------------------
   function handleHome() {
     setGameId(null);
     setGameState(null);
@@ -215,8 +230,6 @@ function App() {
     setAdvice(null);
     setAdviceError(null);
   }
-
-  
 
   const activeHandIndex = gameState?.player.current_hand ?? 0;
   const activeHand = gameState?.player.hands[activeHandIndex];
@@ -243,11 +256,12 @@ function App() {
                     type = "password"
                     placeholder = "Password"
                     value = {password}
-                    onChange={(event) = setPassword(event.target.value)}
+                    onChange={(event) => setPassword(event.target.value)}
                 />
 
                 <button onClick = {handleLogin}>Log in</button>
                 <button onClick = {handleRegister}>Create account</button>
+                <button onClick = {handleGuestPlay}>Guest Play</button>
             </div>
         ): !gameId &&(
             // --------------------------
