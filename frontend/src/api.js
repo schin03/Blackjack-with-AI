@@ -14,6 +14,40 @@ export async function create_game(bal) {
   return res.json();
 }
 
+// register an account
+export async function register(username, password) {
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: {"Content-Type" : "applications/json"},
+    body: JSON.stringify({username, password}),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error ("Could not create account");
+  }
+  return data;
+}
+
+
+// login an account
+export async function login(username, password) {
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: {"Content-Type" : "applications/json"},
+    body: JSON.stringify({username, password}),
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error("Could not log in");
+  }
+
+  return data;
+}
+
 // deal hand api call
 export async function deal(game_id, bet) {
   const res = await fetch(`${API_URL}/games/${game_id}/deal`, {

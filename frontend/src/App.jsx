@@ -1,6 +1,8 @@
 import { useState } from 'react'
 
 import {
+    login,
+    register,
     create_game,
     deal,
     insurance,
@@ -21,6 +23,11 @@ import BlackjackAssistant from "./components/BlackjackAssistant";
 import './App.css'
 
 function App() {
+  const [user, setUser] = useState(null);
+  const [username, setUsername] = userState("");
+  const [password, setPassword] = useState("");
+
+
   const [gameId, setGameId] = useState(null);
   const [gameState, setGameState] = useState(null);
 
@@ -32,6 +39,33 @@ function App() {
   const [advice, setAdvice] = useState(null);
   const [adviceError, setAdviceError] = useState(null);
   const [isAdviceLoading, setIsAdviceLoading] = useState(false);
+
+  // --------------------------
+  // Register account
+  // --------------------------
+  async function handleRegister() {
+    try {
+        setError(null);
+        setUser(await register(username, password));
+        setPassword("");
+    } catch (e) {
+        setError(e.message);
+    }
+  }
+
+  // --------------------------
+  // Login account
+  // --------------------------
+  async function handleLogin() {
+    try {
+        setError(null);
+        setUser(await login(username, password));
+        setPassword("");
+    } catch (e) {
+        setError(e.message);
+    }
+  }
+
 
   // --------------------------
   // Start new session
@@ -182,6 +216,8 @@ function App() {
     setAdviceError(null);
   }
 
+  
+
   const activeHandIndex = gameState?.player.current_hand ?? 0;
   const activeHand = gameState?.player.hands[activeHandIndex];
 
@@ -194,12 +230,29 @@ function App() {
                 {error}
             </p>
         )}
+        {!user? (
+            <div className = "start-menu">
+                <h2>Account</h2>
+                <input
+                    placeholder = "Username"
+                    value = {username}
+                    onChange={(event) => setUsername(event.target.value)}
+                />
 
-        {/* -------------------------- */}
-        {/* START SESSION SCREEN */}
-        {/* -------------------------- */}
+                <input
+                    type = "password"
+                    placeholder = "Password"
+                    value = {password}
+                    onChange={(event) = setPassword(event.target.value)}
+                />
 
-        {!gameId && (
+                <button onClick = {handleLogin}>Log in</button>
+                <button onClick = {handleRegister}>Create account</button>
+            </div>
+        ): !gameId &&(
+            // --------------------------
+            // START SESSION
+            // --------------------------
             <div className = "start-menu">
                 <h2>Start Session</h2>
 
