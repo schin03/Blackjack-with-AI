@@ -24,7 +24,7 @@ import './App.css'
 
 function App() {
   const [user, setUser] = useState(null);
-  const [username, setUsername] = userState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
 
