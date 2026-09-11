@@ -61,7 +61,7 @@ class SnapShot(BaseModel):
 def root():
     return {"message": "Blackjack API running"}
 
-@app.post("/auth/register", response_model = UserPublic, status_code = status.HTTP201_CREATED)
+@app.post("/auth/register", response_model = UserPublic, status_code = status.HTTP_201_CREATED)
 def register(credentials: UserCredentials, db: Session = Depends(get_db)):
     user = User(
         username = credentials.username,
