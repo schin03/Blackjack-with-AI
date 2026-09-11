@@ -2,10 +2,18 @@ import logging
 
 from operator import index
 
-from fastapi import FastAPI
-from fastapi import HTTPException
+from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import Session 
+
+from database.database import Base, SessionLocal, engine
+from database.models import User
+from database.schemas import UserCredentials, UserPublic 
+from database.security import hash_password, verify_password
 
 from game.errors.blackjack_errors import InsufficientFundsError, InvalidHandError, IncorrectState
 from game.game_manager import GameManager
@@ -23,6 +31,16 @@ app.add_middleware(
     allow_methods = ["*"],
     allow_headers = ["*"]
 )
+
+Base.metadata.create_all(bind = engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally: 
+        db.close()
+
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -42,6 +60,41 @@ class SnapShot(BaseModel):
 @app.get("/")
 def root():
     return {"message": "Blackjack API running"}
+
+@app.post("/auth/register", response_model = UserPublic, status_code = status.HTTP201_CREATED)
+def register(credentials: UserCredentials, db: Session = Depends(get_db)):
+    user = User(
+        username = credentials.username,
+        password_hash = hash_password(credentials.password)
+    )
+
+    try:
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code = 409,
+            detail = "Username is already taken"
+        )
+    return user
+
+@app.post("/auth/login", response_model = UserPublic)
+def login(credentials: UserCredentials, db: Session = Depends(get_db)):
+    user = db.scalar(
+        select(User).where(User.username == credentials.username)
+    )
+
+    if user is None or not verify_password(
+        credentials.password,
+        user.password_hash
+    ):
+        raise HTTPException(
+            status_code = 401,
+            detail = "Incorrect username or password"
+        )
+    return user
 
 @app.post("/games")
 def create_game(balance: int):
